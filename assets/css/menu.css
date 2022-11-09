@@ -1,5 +1,5 @@
 .bgimg {
-    background: url('./assets/img/bg_global.gif');
+    background: url('../img/bg_global.gif');
     background-repeat: repeat;
     background-size: 100px;
     background-position: center;

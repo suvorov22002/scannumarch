@@ -27,8 +27,9 @@ function createWindow () {
         protocol: 'file:',
         slashes: true
     }));
-
-    mainWindow.maximize
+    
+    
+    mainWindow.maximize();
 
     const template = [
         {

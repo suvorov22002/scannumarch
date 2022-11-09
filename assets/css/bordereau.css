@@ -1,0 +1,138 @@
+/* Add application styles & imports to this file! */
+
+#uploadFileqr {
+    top: 0px;
+    left: 0px;
+    width: 100%;    
+    z-index: 9;
+    opacity: 0;
+    height: 100%;
+    cursor: pointer;
+    position: absolute;
+}
+
+
+.custom-scroll-bar{
+    height:30vh;
+    overflow-y:scroll;
+    overflow-x: hidden;
+}
+
+.custom-doc-scroll-bar{
+  height:15vh;
+  overflow-y:scroll;
+  overflow-x: hidden;
+}
+
+.custom-scroll-bar::-webkit-scrollbar{
+    width: 5px;
+}
+
+.custom-scroll-bar::-webkit-scrollbar-thumb{
+    background: rgba(0,0,0,.26);
+}
+
+.draw::-webkit-scrollbar{
+  width: 10px;
+}
+
+.draw::-webkit-scrollbar-thumb{
+  background: rgba(48, 47, 47, 0.932);
+}
+
+#testlist{
+    height:40px;
+}
+
+.draw {
+  
+  height:75vh;
+  text-align: center;
+  /*border: 3px solid #73AD21;*/
+  overflow-y:scroll;
+  overflow-x: hidden;
+  padding: 10px;
+ display: flex;
+  flex-direction: row;
+}
+
+.block {
+  display: block;
+  margin: auto;
+ 
+}
+
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.block > img{
+  height: 80%;
+}
+
+.img-scroll-bar{
+ /* width:100vh;*/
+  overflow-y:hidden;
+  overflow-x: scroll;
+}
+
+.img-scroll-bar::-webkit-scrollbar{
+    width: 5px;
+}
+
+.img-scroll-bar::-webkit-scrollbar-thumb{
+    background: rgba(0,0,0,.26);
+}
+
+.box {
+    /*border: 5px solid darkblue;*/
+    height: 100%;
+  }
+  .example-form {
+    min-width: 150px;
+    max-width: 500px;
+    width: 100%;
+  }
+  
+  .example-full-width {
+    width: 100%;
+  }
+
+  .country-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .btn_num {
+    padding: 5px 10px;
+    border: 2px solid black;
+    
+  }
+
+  .btn_color_error {
+    border-color: #f44336;
+  }
+
+  .btn_color_success {
+    border-color: #04AA6D;
+  }
+
+
+  .active {
+    background-color: rgb(249, 115, 22);
+    color: white;
+  }
+
+  .roundedDel {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  /*  background-color: rgb(155, 152, 151);*/
+    border: 1px solid rgb(248, 3, 3);
+  }
+
+
+
+  
