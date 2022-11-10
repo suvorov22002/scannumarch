@@ -1,3 +1,4 @@
+
 let filteredTypes = [
     { code: 'NULL', name: 'Choisir le type de document' },
     { code: 'VERESP', name: 'Versement especes' },
@@ -120,7 +121,7 @@ function verifNumber(evt) {
     }
 }
 
-function uploadFileEvtQr1(input) {
+function uploadFileEvtQr(input) {
     var url = input.value;
     var ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
     if (input.files && input.files[0] && (ext == "gif" || ext == "png" || ext == "jpeg" || ext == "jpg")) {
@@ -134,4 +135,53 @@ function uploadFileEvtQr1(input) {
     }else{
          $('#img').attr('src', '/assets/no_preview.png');
     }
+}
+
+function uploadFileEvtQr1(input) {
+  var url = input.value;
+  var ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
+
+  if (input.files) {
+     console.log(JSON.stringify(input.files))
+    /*  
+     var reader = new FileReader();
+      reader.onload = function (e) {
+          $('#img').attr('src', e.target.result);
+      }
+
+      reader.readAsDataURL(input.files[0]);
+
+*/
+      Array.from(input.files).forEach((element) => {
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+          
+          var imgBase64Path;
+          imgBase64Path = '';
+          const lastDot = element.name.lastIndexOf('.');
+          var fileNom = element.name.substring(0, lastDot);
+          imgBase64Path = e.target.result;
+
+          var idx = fileNom.split('-')[1];
+         
+
+        //  fileNom = 'image-'+this.formatFileNom(idx);
+          console.log("fileNom: " + element.name);
+
+          try {
+            const data = fs.readFileSync(element, 'utf8');
+            console.log(data);
+          } catch (err) {
+            console.error(err);
+          }
+
+        };
+        reader.readAsDataURL(element);
+
+       // this.fileInput.nativeElement.value = "";
+       
+      });
+  }
 }

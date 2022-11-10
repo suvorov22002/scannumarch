@@ -1,4 +1,4 @@
-
+let $ = require('jquery')
 
 $(function(){
     $("#menu").load("menuGb.html")

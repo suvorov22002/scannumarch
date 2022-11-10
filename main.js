@@ -1,4 +1,4 @@
-const {app, Menu, remote, BrowserWindow} = require('electron');
+const {app, Menu, remote, BrowserWindow, ipcMain} = require('electron');
 //const app = electron.app;
 //const remote = electron.remote
 //const BrowserWindow = electron.BrowserWindow
@@ -80,4 +80,13 @@ app.whenReady().then(() => {
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit()
 })
+
+ipcMain.on("toMain", (event, args) => {
+    fs.readFile("path/to/file", (error, data) => {
+      // Do something with file contents
+  
+      // Send result back to renderer process
+      win.webContents.send("fromMain", responseObj);
+    });
+});
 

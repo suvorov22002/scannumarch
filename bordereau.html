@@ -10,13 +10,13 @@
                         <!-- Display files names  -->
                             <!-- Browse Button -->
                         
-                        <button id="fileselect" onkeypress="loadFiles();"
+                        <button id="fileselect" 
                             class="bg-red-800  text-white text-xs font-bold uppercase
                                 rounded m-2">
                             Parcourir
                         </button>
                         <!-- Fetch selected filed on change accept="application/pdf"-->
-                        <input type="file" class="form-control-file border" id="upload" onchange="uploadFileEvtQr1(this)" name="upload" 
+                        <input type="file" class="form-control-file border" id="upload" onchange="uploadFile(this)" name="upload" 
                          multiple  />
                     </div>
             </div>
@@ -24,7 +24,7 @@
             <!-- Documents numérisés chargés depuis le repertoire de travail -->
             <h4  class="text-blueGray-700 .text-xs font-bold title-imp">Documents numerisé</h4> <br>
             <div class="w-full bg-white px-4 custom-doc-scroll-bar mt-1 flex-auto" >
-               <div class="flex wrap">   </div>
+               <div class="flex wrap" id="docnum">   </div>
             </div>
             
             <!-- Documents chargés à indexer -->
