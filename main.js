@@ -1,4 +1,5 @@
 const {app, Menu, remote, BrowserWindow, ipcMain} = require('electron');
+const fs = require('fs');
 //const app = electron.app;
 //const remote = electron.remote
 //const BrowserWindow = electron.BrowserWindow
@@ -16,6 +17,7 @@ function createWindow () {
     mainWindow = new BrowserWindow({
         width: 1024,
         height: 768,
+        minWidth: 800, minHeight: 600,
         icon:__dirname+'/assets/img/logo.png',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
@@ -29,7 +31,7 @@ function createWindow () {
     }));
     
     
-    mainWindow.maximize();
+   // mainWindow.maximize();
 
     const template = [
         {
@@ -86,7 +88,8 @@ ipcMain.on("toMain", (event, args) => {
       // Do something with file contents
   
       // Send result back to renderer process
-      win.webContents.send("fromMain", responseObj);
+      //mainWindow.webContents.send("fromMain", responseObj);
+      mainWindow.webContents.send("fromMain", "responseObj");
     });
 });
 
