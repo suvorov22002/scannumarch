@@ -137,53 +137,16 @@ function uploadFileEvtQr(input) {
     }
 }
 
-function uploadFileEvtQr1(input) {
-  var url = input.value;
-  var ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
+function onLoadQRDoc(title, index) {
+  
+}
 
-  if (input.files) {
-     console.log(JSON.stringify(input.files))
-    /*  
-     var reader = new FileReader();
-      reader.onload = function (e) {
-          $('#img').attr('src', e.target.result);
-      }
+function onSupp(title) {
 
-      reader.readAsDataURL(input.files[0]);
+}
 
-*/
-      Array.from(input.files).forEach((element) => {
-
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-          
-          var imgBase64Path;
-          imgBase64Path = '';
-          const lastDot = element.name.lastIndexOf('.');
-          var fileNom = element.name.substring(0, lastDot);
-          imgBase64Path = e.target.result;
-
-          var idx = fileNom.split('-')[1];
-         
-
-        //  fileNom = 'image-'+this.formatFileNom(idx);
-          console.log("fileNom: " + element.name);
-
-          try {
-            const data = fs.readFileSync(element, 'utf8');
-            console.log(data);
-          } catch (err) {
-            console.error(err);
-          }
-
-        };
-        reader.readAsDataURL(element);
-
-       // this.fileInput.nativeElement.value = "";
-       
-      });
-  }
+function onUpdate(title) {
+  console.log("update ",title);
 }
 
 const ipc = require('electron').ipcRenderer
@@ -192,10 +155,39 @@ const asyncMsgBtn = document.getElementById('fileselect')
 
 asyncMsgBtn.addEventListener('click', () => {
 
-    ipc.once('actionReply', function(event, response){
-       console.log("Response: ",JSON.stringify(response))
-    //   document.getElementById('image').src = 'data:image/jpg;base64,'+response[1];
-       alert('Une erreur a été rencontrée. Consultez le terminal pour plus de détails.');
+    ipc.once('actionReply', async function(event, response){
+       //console.log("Response: ",JSON.stringify(response))
+       let currentChildren2 = $('#visual');
+       for (let i = 0; i < response.length; i++) {
+          //console.log("Response: ",response[i].filenom)
+          var src = 'data:image/jpg;base64,'+ response[i].enbase64;
+          currentChildren2.append("<span id='anchor' class='text-white text-xs font-bold uppercase rounded p-2 m-2' href = '#' >"+response[i].filenom+" &nbsp;&nbsp;")
+          currentChildren2.append("<input type='checkbox' onchange='onChecked(dataimage, $event)'></span>")
+          currentChildren2.append("<img class='mb-2' src='"+src+"' width='500px' ></img>");
+       }
+
+       let currentProcess = $('#process');
+       for (let j = 0; j < response.length; j++) {
+           currentProcess.append("<button type='button' onclick='onLoadQRDoc(qrImage.title, index);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+response[j].filenom+"</button>")
+           currentProcess.append("<button type='button' class='mr-2' id='btnOne' title='Supprimer ce dossier.' onclick='onSupp(qrImage.title);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
+           currentProcess.append("<button type='button' class='mr-2' id='btnTwo' title='Valider les Proprietés.' onclick ='"+onUpdate(response[j].filenom)+";'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
+       }
+      // var blob = response[0];
+    /*
+      blob = response
+      var convBlobBase64 = (blob) => new Promise((resolve, reject) => {
+        const reader = new FileReader;
+        reader.onerror = reject;
+        reader.onload = () => {
+          resolve(reader.result);
+        };
+        reader.readAsDataURL(blob);
+      });
+      const base64String = await convBlobBase64(blob);
+      */
+      //console.log("EXTRACT base64String: "+base64String);
+  //     document.getElementById('img').src = 'data:image/jpg;base64,'+response;
+       //alert('Une erreur a été rencontrée. Consultez le terminal pour plus de détails.');
     })
     ipc.send('loadScanFile','Bonjour Electron depuis AFB');
 });

@@ -9,14 +9,9 @@
                     <div>
                         <!-- Display files names  -->
                             <!-- Browse Button -->
-                        
+                    
                         <button id="fileselect" 
-                            class="bg-red-800  text-white text-xs font-bold uppercase
-                                rounded m-2">
-                            Parcourir
-                        </button>
-                        <button id="fileselect"
-                            class="bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
+                            class="mt-2 bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
                         >
                             <i title="Lancer l'indexation" class="fas fa-magic" aria-hidden="true"></i>
                             Parcourir
@@ -48,24 +43,9 @@
             <div class="w-full bg-white px-4 custom-doc-scroll-bar mt-1 flex-auto" >
                <!-- PROPRIETE-->
                
-               <div class="flex wrap " *ngFor="let qrImage of qrImageCollection; let isLast = last; let index = index">   
+                <div class="w-full flex-wrap " id="process">   
 
-                    <button type="button" [ngStyle]="{'border-color': getColor(qrImage.state)}"  [ngClass]="currButtonIndex ==  index? 'active': ''" 
-                    (click)="onLoadQRDoc(qrImage.title, index);" 
-                    class="bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num  
-                        rounded mr-2  m-1">
-                        {{(qrImage.title.length > 15) ? (qrImage.title | slice:17:27) : (qrImage.title)}}
-                    </button>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <button type="button" class="" id="btnOne" [hidden] = "to_index" title="Supprimer ce dossier." 
-                        (click)="onSupp(qrImage.title);" >
-                        <i class="fa fa-times-circle" style="font-size:24px;color:red"></i>
-                    </button>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <button type="button" class="" id="btnTwo" [hidden] = "to_index" title="Valider les Proprietés." 
-                        (click)="onUpdate(qrImage.title);" >
-                        <i class="fa fa-check-circle" style="font-size:24px;color:green"></i> 
-                    </button>
+                    
                 </div>
             </div>
 
@@ -159,10 +139,8 @@
        <!--   <app-document-viewer [imageCollection] =flex-auto "imgCollection1">class="w-full bg-blueGray-900 flex content-center img-scroll-bar items-center pt-2 pb-2 justify-center h-full"</app-document-viewer>-->
        
       <div class="draw bg-blueGray-600" >     
-           <div
-                class="block"><span id='anchor' [ngClass] = "qrRImageCollection.length > 1 ? 'show':'hidden'" class="text-white text-xs font-bold uppercase
-                rounded mr-2" href = "#" >{{dataimage.filename}} &nbsp;&nbsp;<input type="checkbox" (change)="onChecked(dataimage, $event)"></span>
-                <img src="#" id="img" width="500px" >
+           <div id="visual" class="block pt-2 mt-2">
+                <!-- <img src="#" id="img" width="500px" > -->
            </div> 
            <!-- (click)="onLoadQRDoc(dataimage.filename);"-->
 <!--
