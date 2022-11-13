@@ -157,6 +157,10 @@ asyncMsgBtn.addEventListener('click', () => {
 
     ipc.once('actionReply', async function(event, response){
        //console.log("Response: ",JSON.stringify(response))
+       if (response.length === 0) {
+          alert('Aucun document à numeriser.');
+          return;
+       }
        let currentChildren2 = $('#visual');
        for (let i = 0; i < response.length; i++) {
           //console.log("Response: ",response[i].filenom)
