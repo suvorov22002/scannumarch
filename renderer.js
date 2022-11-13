@@ -1,1 +1,2 @@
-//let $ = require('jquery')
+let $ = require('jquery')
+

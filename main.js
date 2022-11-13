@@ -6,6 +6,9 @@ const fs = require('fs');
 const url = require('url');
 const path = require('path');
 
+//const ipc = require('electron').ipcMain;
+const { dialog } = require('electron');
+
 const jsdom = require('jsdom');
 const dom = new jsdom.JSDOM("");
 const $ = require("jquery")(dom.window);
@@ -20,7 +23,9 @@ function createWindow () {
         minWidth: 800, minHeight: 600,
         icon:__dirname+'/assets/img/logo.png',
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: true,
+            contextIsolation: false
         }
     });
 
@@ -31,7 +36,7 @@ function createWindow () {
     }));
     
     
-   // mainWindow.maximize();
+    mainWindow.maximize();
 
     const template = [
         {
@@ -83,13 +88,26 @@ app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit()
 })
 
-ipcMain.on("toMain", (event, args) => {
-    fs.readFile("path/to/file", (error, data) => {
+ipcMain.on("loadScanFile", (event, args) => {
+
+    dialog.showOpenDialog(mainWindow, {
+        properties: ['openFile', 'openDirectory'],
+       // defaultPath: "D:\\projetsAfb\\scanToAveroes"
+      }).then(result => {
+        console.log(result.canceled)
+        console.log(result.filePaths)
+        result = result.filePaths
+        event.sender.send('actionReply', result);
+      }).catch(err => {
+        console.log(err)
+      })
+   /* 
+      fs.readFile("path/to/file", (error, data) => {
       // Do something with file contents
   
       // Send result back to renderer process
       //mainWindow.webContents.send("fromMain", responseObj);
       mainWindow.webContents.send("fromMain", "responseObj");
     });
+    */
 });
-

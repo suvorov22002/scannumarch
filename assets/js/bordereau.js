@@ -185,3 +185,17 @@ function uploadFileEvtQr1(input) {
       });
   }
 }
+
+const ipc = require('electron').ipcRenderer
+
+const asyncMsgBtn = document.getElementById('fileselect')
+
+asyncMsgBtn.addEventListener('click', () => {
+
+    ipc.once('actionReply', function(event, response){
+       console.log("Response: ",JSON.stringify(response))
+    //   document.getElementById('image').src = 'data:image/jpg;base64,'+response[1];
+       alert('Une erreur a été rencontrée. Consultez le terminal pour plus de détails.');
+    })
+    ipc.send('loadScanFile','Bonjour Electron depuis AFB');
+});

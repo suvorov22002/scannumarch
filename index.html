@@ -38,12 +38,6 @@
             <div id="menu"></div>
             <div id="bordereau"></div>
         </div>
-        <script>
-            window.api.receive("fromMain", (data) => {
-                console.log(`Received ${data} from main process`);
-            });
-            window.api.send("toMain", "some data");
-        </script>
         <script src="./renderer.js"></script>
     </body>
 </html>
