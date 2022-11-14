@@ -1,4 +1,4 @@
-<div class="row w-full  justify-center  px-4">
+<div class="row px-4">
     <!--<div class="w-full lg:w-10/12 px-4  h-full">
         <div class="relative bgimg flex flex-row min-w-0 break-words w-full mb-6 shadow-lg rounded-lg border-0"> -->
 
@@ -9,12 +9,15 @@
                     <div>
                         <!-- Display files names  -->
                             <!-- Browse Button -->
-                    
+                    <!--
                         <button id="fileselect" 
                             class="mt-2 bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
+                        >  -->
+                        <button id="fileselect" 
+                            class="mt-2 mb-1 px-4 py-2 font-bold uppercase text-xs bouton"
                         >
-                            <i title="Lancer l'indexation" class="fas fa-magic" aria-hidden="true"></i>
-                            Parcourir
+                            <i title="Lancer l'indexation" class="fa fa-spinner fa-spinner" aria-hidden="true"></i>
+                            Charger
                         </button>
                         <!-- Fetch selected filed on change accept="application/pdf"-->
                     <!--    <input type="file" class="form-control-file border" id="upload" onchange="uploadFile(this)" name="upload" 
@@ -24,11 +27,12 @@
             </div>
 
             <!-- Documents numérisés chargés depuis le repertoire de travail -->
+        <!--
             <h4  class="text-blueGray-700 .text-xs font-bold title-imp">Documents numerisé</h4> <br>
             <div class="w-full bg-white px-4 custom-doc-scroll-bar mt-1 flex-auto" >
                <div class="flex wrap" id="docnum">   </div>
             </div>
-            
+        -->
             <!-- Documents chargés à indexer -->
             <h4  class="text-blueGray-700 .text-xs font-bold title-imp">Documents à traiter</h4> <br>
                 <button
@@ -36,7 +40,7 @@
                     type="button" 
                     (click)="split()" [disabled] = "image_in" [hidden] = "instance"
                 >
-                    <i title="Lancer l'indexation" class="fas fa-magic" aria-hidden="true"></i>
+                    <i title="Lancer l'indexation" class="fa fa-chrome" aria-hidden="true"></i>
                     Indexer
                 </button>
               
@@ -138,10 +142,10 @@
         </div>
        <!--   <app-document-viewer [imageCollection] =flex-auto "imgCollection1">class="w-full bg-blueGray-900 flex content-center img-scroll-bar items-center pt-2 pb-2 justify-center h-full"</app-document-viewer>-->
        
-      <div class="draw bg-blueGray-600" >     
-           <div id="visual" class="block pt-2 mt-2">
+      <div id="visual" class="draw bg-blueGray-600" >     
+        <!--   <div class="block pt-2 mt-2 ">-->
                 <!-- <img src="#" id="img" width="500px" > -->
-           </div> 
+        <!--   </div> -->
            <!-- (click)="onLoadQRDoc(dataimage.filename);"-->
 <!--
           <div  *ngFor = "let dataimage of qrRImageCollection" class="block" [hidden] = "!typepdf" >

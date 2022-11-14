@@ -1,3 +1,4 @@
+let globalResponse; // handle files's objects (name and base64)
 
 let filteredTypes = [
     { code: 'NULL', name: 'Choisir le type de document' },
@@ -137,23 +138,58 @@ function uploadFileEvtQr(input) {
     }
 }
 
-function onLoadQRDoc(title, index) {
+function onLoadQRDoc(btn) {
+  var id = btn.id
+  var index = id.split('-')[1]
+  console.log("globalResponse: "+globalResponse[index].filenom)
+}
+
+function onSupp(btn) {
+  var id = btn.id
+  var index = id.replace("btnOne-","")
+  console.log("globalResponse: "+globalResponse[index].filenom)
   
 }
 
-function onSupp(title) {
-
-}
-
-function onUpdate(title) {
-  console.log("update ",title);
+function onUpdate(btn) {
+  var id = btn.id // recupere l'id de l'element courant (btnOne-i)
+  var index = id.split('-')[1]
+  console.log("globalResponse: "+globalResponse[index].filenom)
 }
 
 const ipc = require('electron').ipcRenderer
 
 const asyncMsgBtn = document.getElementById('fileselect')
 
+let currentChildren2 = $('#visual');
+
 asyncMsgBtn.addEventListener('click', () => {
+    
+  //  let currentChildren2 = $('#visual');
+  //  let currentChildren2 = document.getElementById('visual')
+  //  while (currentChildren2.hasChildNodes()){
+  //    currentChildren2.removeChild(currentChildren2.firstChild);
+  //  }
+  
+  const elements = document.querySelectorAll(".block")
+  console.log(elements.length)
+  console.log(JSON.stringify(elements))
+  var count=0;
+  elements.forEach((item) => {
+   // console.log("count = "+count++)
+   // console.log(JSON.stringify(item))
+      item.parentNode.removeChild(item);
+  });
+  
+    
+    if (globalResponse){
+      for (let i = 0; i < globalResponse.length; i++) {
+        $('#btn-'+i).remove();
+        $('#btnOne-'+i).remove();
+        $('#btnTwo-'+i).remove();
+     }
+    }
+    
 
     ipc.once('actionReply', async function(event, response){
        //console.log("Response: ",JSON.stringify(response))
@@ -161,20 +197,26 @@ asyncMsgBtn.addEventListener('click', () => {
           alert('Aucun document à numeriser.');
           return;
        }
-       let currentChildren2 = $('#visual');
+
+       globalResponse = response;
+
+       
        for (let i = 0; i < response.length; i++) {
-          //console.log("Response: ",response[i].filenom)
+          
           var src = 'data:image/jpg;base64,'+ response[i].enbase64;
+          currentChildren2.append("<div class='block pt-2 mt-2'>")
           currentChildren2.append("<span id='anchor' class='text-white text-xs font-bold uppercase rounded p-2 m-2' href = '#' >"+response[i].filenom+" &nbsp;&nbsp;")
           currentChildren2.append("<input type='checkbox' onchange='onChecked(dataimage, $event)'></span>")
-          currentChildren2.append("<img class='mb-2' src='"+src+"' width='500px' ></img>");
+          currentChildren2.append("<img class='mb-2 responsive' src='"+src+"' alt='bordereau' width='500px' ></img>");
+          currentChildren2.append("</div>")
+
        }
 
        let currentProcess = $('#process');
        for (let j = 0; j < response.length; j++) {
-           currentProcess.append("<button type='button' onclick='onLoadQRDoc(qrImage.title, index);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+response[j].filenom+"</button>")
-           currentProcess.append("<button type='button' class='mr-2' id='btnOne' title='Supprimer ce dossier.' onclick='onSupp(qrImage.title);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
-           currentProcess.append("<button type='button' class='mr-2' id='btnTwo' title='Valider les Proprietés.' onclick ='"+onUpdate(response[j].filenom)+";'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
+           currentProcess.append("<button type='button' id='btn-" + j + "' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+response[j].filenom+"</button>")
+           currentProcess.append("<button type='button' class='mr-2' id='btnOne-" + j + "' title='Supprimer ce dossier.' onclick='onSupp(this);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
+           currentProcess.append("<button type='button' class='mr-2' id='btnTwo-" + j + "' title='Valider les Proprietés.' onclick ='onUpdate(this);'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
        }
       // var blob = response[0];
     /*

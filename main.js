@@ -134,7 +134,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
             obj = {}
             obj.filenom = ""
             obj.enbase64 = ""
-            console.log(file); 
+        //    console.log(file); 
             obj.filenom = file
             obj.enbase64 = await base64_encode(path.join(directoryPath, file))
             scanFiles.push(obj);
