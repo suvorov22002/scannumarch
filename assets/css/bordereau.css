@@ -13,7 +13,7 @@
 
 
 .custom-scroll-bar{
-    height:30vh;
+    height:39vh;
     overflow-y:scroll;
     overflow-x: hidden;
 }
@@ -171,6 +171,10 @@ img {
   .responsive {
     max-width: 100%;
     height: auto;
+  }
+
+  .input-group-append {
+    cursor: pointer;
   }
 
   

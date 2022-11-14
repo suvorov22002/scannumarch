@@ -11,7 +11,10 @@ const { dialog } = require('electron');
 
 const jsdom = require('jsdom');
 const dom = new jsdom.JSDOM("");
-const $ = require("jquery")(dom.window);
+//const $ = require("jquery")(dom.window);
+var java = require('java');
+
+var javaLangSystem = java.import('java.lang.System');
 
 let mainWindow;
 
@@ -214,5 +217,7 @@ function base64_decode(base64str, file) {
     fs.writeFileSync(file, bitmap);
     console.log('******** File created from base64 encoded string ********');
 }
+
+javaLangSystem.out.printlnSync('I love gfg!');
 
   

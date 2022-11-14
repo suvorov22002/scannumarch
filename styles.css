@@ -10,8 +10,13 @@
 @import '~primeicons/primeicons.css';
 @import '~ngx-toastr/toastr';
 
-
-html, body { height: 100%; }
+html{
+  min-height:100%;/* make sure it is at least as tall as the viewport */
+  position:relative;
+  height: 100%;
+  
+}
+body { height: 100%;}
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 /* You can add global styles to this file, and also import other style files */
@@ -52,15 +57,6 @@ html {
 Sections
 ========
 */
-
-/**
-Remove the margin in all browsers.
-*/
-
-body {
-  margin: 0;
-}
-
 /**
 Improve consistency of default fonts in all browsers. (https://github.com/sindresorhus/modern-normalize/issues/3)
 */

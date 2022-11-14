@@ -75,6 +75,7 @@ let filteredTypes = [
     });
   });
 
+
 //$('#testlist').change(function () {
 //    var selectedItem = $('#testlist').val();
 //    alert(selectedItem);
@@ -139,15 +140,27 @@ function uploadFileEvtQr(input) {
 }
 
 function onLoadQRDoc(btn) {
-  var id = btn.id
-  var index = id.split('-')[1]
-  console.log("globalResponse: "+globalResponse[index].filenom)
+    var id = btn.id
+    var index = id.split('-')[1]
+    console.log("globalResponse: "+globalResponse[index].filenom)
+
+    const elements =  $("div.block");
+    if(elements) elements.remove();
+
+    var src = 'data:image/jpg;base64,'+ globalResponse[index].enbase64;
+    var divContents = "<div class='block pt-2 mt-2'>" + 
+    "<span id='' class='text-white text-xs font-bold uppercase rounded p-2 m-2' href = '#' >"+globalResponse[index].filenom+" &nbsp;&nbsp;" + 
+    "<input type='checkbox' onchange='onChecked(this)'></span>" + 
+    "<img class='mb-2 responsive' src='"+src+"' alt='bordereau' width='500px' ></img>" + 
+    "</div>";
+    currentChildren2.append(divContents);
 }
 
 function onSupp(btn) {
   var id = btn.id
   var index = id.replace("btnOne-","")
   console.log("globalResponse: "+globalResponse[index].filenom)
+  alert("onSupp: "+globalResponse[index].filenom);
   
 }
 
@@ -155,6 +168,7 @@ function onUpdate(btn) {
   var id = btn.id // recupere l'id de l'element courant (btnOne-i)
   var index = id.split('-')[1]
   console.log("globalResponse: "+globalResponse[index].filenom)
+  alert("onUpdate: "+globalResponse[index].filenom);
 }
 
 const ipc = require('electron').ipcRenderer
@@ -164,23 +178,10 @@ const asyncMsgBtn = document.getElementById('fileselect')
 let currentChildren2 = $('#visual');
 
 asyncMsgBtn.addEventListener('click', () => {
-    
-  //  let currentChildren2 = $('#visual');
-  //  let currentChildren2 = document.getElementById('visual')
-  //  while (currentChildren2.hasChildNodes()){
-  //    currentChildren2.removeChild(currentChildren2.firstChild);
-  //  }
   
-  const elements = document.querySelectorAll(".block")
-  console.log(elements.length)
-  console.log(JSON.stringify(elements))
-  var count=0;
-  elements.forEach((item) => {
-   // console.log("count = "+count++)
-   // console.log(JSON.stringify(item))
-      item.parentNode.removeChild(item);
-  });
-  
+  // Remove element of visual
+  const elements =  $("div.block");
+  if(elements) elements.remove();
     
     if (globalResponse){
       for (let i = 0; i < globalResponse.length; i++) {
@@ -189,6 +190,8 @@ asyncMsgBtn.addEventListener('click', () => {
         $('#btnTwo-'+i).remove();
      }
     }
+
+   
     
 
     ipc.once('actionReply', async function(event, response){
@@ -199,17 +202,26 @@ asyncMsgBtn.addEventListener('click', () => {
        }
 
        globalResponse = response;
-
-       
+/*       
        for (let i = 0; i < response.length; i++) {
           
           var src = 'data:image/jpg;base64,'+ response[i].enbase64;
-          currentChildren2.append("<div class='block pt-2 mt-2'>")
-          currentChildren2.append("<span id='anchor' class='text-white text-xs font-bold uppercase rounded p-2 m-2' href = '#' >"+response[i].filenom+" &nbsp;&nbsp;")
-          currentChildren2.append("<input type='checkbox' onchange='onChecked(dataimage, $event)'></span>")
-          currentChildren2.append("<img class='mb-2 responsive' src='"+src+"' alt='bordereau' width='500px' ></img>");
-          currentChildren2.append("</div>")
-
+          var divContents = "<div id='block-" + i + "' class='block pt-2 mt-2'>" + 
+          "<span id='' class='text-white text-xs font-bold uppercase rounded p-2 m-2' href = '#' >"+response[i].filenom+" &nbsp;&nbsp;" + 
+          "<input type='checkbox' onchange='onChecked(this)'></span>" + 
+          "<img class='mb-2 responsive' src='"+src+"' alt='bordereau' width='500px' ></img>" + 
+          "</div>";
+          currentChildren2.append(divContents);
+       }
+*/
+       if (response.length > 0) {
+          var src = 'data:image/jpg;base64,'+ response[response.length-1].enbase64;
+          var divContents = "<div class='block pt-2 mt-2'>" + 
+          "<span id='' class='text-white text-xs font-bold uppercase rounded p-2 m-2' href = '#' >"+response[response.length-1].filenom+" &nbsp;&nbsp;" + 
+          "<input type='checkbox' onchange='onChecked(this)'></span>" + 
+          "<img class='mb-2 responsive' src='"+src+"' alt='bordereau' width='500px' ></img>" + 
+          "</div>";
+          currentChildren2.append(divContents);
        }
 
        let currentProcess = $('#process');

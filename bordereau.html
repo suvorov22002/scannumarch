@@ -3,7 +3,7 @@
         <div class="relative bgimg flex flex-row min-w-0 break-words w-full mb-6 shadow-lg rounded-lg border-0"> -->
 
       <div class="col-sm-3 px-4">
-        <div class="w-full">
+        <div class="w-full h-full ">
 
             <div class="relative w-full mb-1">
                     <div>
@@ -48,14 +48,13 @@
                <!-- PROPRIETE-->
                
                 <div class="w-full flex-wrap " id="process">   
-
                     
                 </div>
             </div>
 
-            <h4  class="text-blueGray-700 .text-xs font-bold title-imp">Renseigner les Proprietés</h4> <br>
-            <div class="w-full bg-white px-4 mt-1">
-                <div class="custom-scroll-bar mt-1 flex-auto" >
+            <h4  class="mt-2 text-blueGray-700 .text-xs font-bold title-imp">Renseigner les Proprietés</h4> <br>
+            <div class="w-full bg-white px-4">
+                <div class="custom-scroll-bar flex-auto" >
                
                     <div class="relative ml-2 mr-2 mt-2">
                         <label for="testlist" class="form-label text-xs font-bold">Type de document</label>
@@ -90,6 +89,21 @@
                         <label for="age" class="form-label text-xs font-bold">Agence</label>
                         <input type="text" class="form-control" id="age" placeholder="Agence" name="ncp" maxlength="5" onkeypress="return verifNumber(event);">
                     </div>
+
+                    <div class="ml-2 mr-2 mt-2 text-blueGray-700 text-xs">
+                      
+                        <label for="age" class="form-label text-xs font-bold">Date</label>
+                        <div class="input-group date" id="datepicker">
+                            <input type="date" class="form-control" id="date"/>
+                          <!--  <span class="input-group-append">
+                                <span class="input-group-text bg-light d-block">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                            </span>
+                            -->
+                        </div>
+                       
+                    </div>
     
                 </div>
                 <div  class="border-blueGray-500 w-full lg:w-11/12 flex justify-end py-2 mb-0" >
@@ -98,7 +112,7 @@
                         type="button" 
                         (click)="split()" [disabled] = "image_in" [hidden] = "instance"
                     >
-                        <i title="Lancer l'indexation" class="fas fa-magic" aria-hidden="true"></i>
+                        <i class="fa fa-cart-plus" aria-hidden="true" style="color:rgb(253, 246, 246)"></i>
                         Ajouter
                     </button>
                 </div>
@@ -142,20 +156,9 @@
         </div>
        <!--   <app-document-viewer [imageCollection] =flex-auto "imgCollection1">class="w-full bg-blueGray-900 flex content-center img-scroll-bar items-center pt-2 pb-2 justify-center h-full"</app-document-viewer>-->
        
-      <div id="visual" class="draw bg-blueGray-600" >     
-        <!--   <div class="block pt-2 mt-2 ">-->
-                <!-- <img src="#" id="img" width="500px" > -->
-        <!--   </div> -->
-           <!-- (click)="onLoadQRDoc(dataimage.filename);"-->
-<!--
-          <div  *ngFor = "let dataimage of qrRImageCollection" class="block" [hidden] = "!typepdf" >
-                <pdf-viewer [src]="dataimage.olfilename"
-                    [zoom]="0.5" 
-                    [autoresize] = "true" 
-                ></pdf-viewer>
-          </div> 
-        -->
-     </div>
+      <div id="visual" class="h-full draw bg-blueGray-600" >     
+    
+      </div>
     </div>
 
     <!--  </div>
