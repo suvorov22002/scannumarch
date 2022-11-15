@@ -12,9 +12,13 @@ const { dialog } = require('electron');
 const jsdom = require('jsdom');
 const dom = new jsdom.JSDOM("");
 //const $ = require("jquery")(dom.window);
-var java = require('java');
 
-var javaLangSystem = java.import('java.lang.System');
+var Jimp = require("jimp");
+var QrCode = require('qrcode-reader');
+const { resolve } = require('path');
+const { rejects } = require('assert');
+
+
 
 let mainWindow;
 
@@ -218,6 +222,25 @@ function base64_decode(base64str, file) {
     console.log('******** File created from base64 encoded string ********');
 }
 
-javaLangSystem.out.printlnSync('I love gfg!');
+
+
+const readQRCode = async (filename) => {
+    const filePath = path.join(__dirname, filename);
+    try{
+      if (fs.existsSync(filePath)) {
+        const img = await Jimp.read(fs.readFileSync(filePath));
+        const qr = new QrCode();
+        const value = await new Promise((resolve, reject) => {
+          qr.callback = (err, v) => err != null ? reject(err) : resolve(v);
+          qr.decode(img.bitmap);
+        });
+        return value.result;
+      }
+    }
+    catch(error){
+      return error;
+    }
+  }
+  readQRCode('./assets/img/image-002.jpg').then(console.log).catch(console.log);
 
   
