@@ -41,7 +41,7 @@
 }
 
 #testlist{
-    height:40px;
+  height:40px;
 }
 
 .draw {
@@ -176,5 +176,11 @@ img {
   .input-group-append {
     cursor: pointer;
   }
+
+.error
+{
+  color: rgb(255, 0, 13);
+  font-weight: bold
+}
 
   

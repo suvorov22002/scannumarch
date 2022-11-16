@@ -1,4 +1,4 @@
-const {app, Menu, remote, BrowserWindow, ipcMain} = require('electron');
+const {app, Menu, remote, BrowserWindow, ipcMain, ipc} = require('electron');
 const fs = require('fs');
 //const app = electron.app;
 //const remote = electron.remote
@@ -149,13 +149,13 @@ ipcMain.on("loadScanFile", async (event, args) => {
         //    console.log(file); 
             obj.filenom = file
             obj.enbase64 = await base64_encode(path.join(directoryPath, file))
-            obj.enbase64 = ""
+        //   obj.enbase64 = ""
            
             await readQRCode(path.join(directoryPath, file))
                   .then((message) => {
                     
                     countFiles++;
-                    if (message.indexOf('patterns:0') !== -1) {
+                    if (message.indexOf('AFB QRCODE NOT FOUND') !== -1) {
                         console.log("qrcode = "+message);
                         obj.state = false
                         obj.data = ""
@@ -172,6 +172,9 @@ ipcMain.on("loadScanFile", async (event, args) => {
                 
                     if(countFiles === numberFiles) {
                         console.log("countFiles = "+countFiles)
+                        if (scanFiles.length !==0 ){
+                            groupedScannedFiles.push(scanFiles)
+                        }
                         event.sender.send('actionReply', groupedScannedFiles);
                     }
                   }).catch((err) => {
@@ -205,6 +208,22 @@ ipcMain.on("loadScanFile", async (event, args) => {
       // Send result back to renderer process
       //mainWindow.webContents.send("fromMain", responseObj);
   
+});
+
+ipcMain.on("validData", async (event, args) => {
+    console.log('args: '+args)
+    if(!args){
+        dialog.showErrorBox('AFB-SCANNUMARCH', 'Veuillez renseigner les propriétés correctes.');
+        /*dialog.showMessageBox({
+            type: 'warning',
+            title: 'Attention !',
+            message: 'Veuillez renseigner les propriétés correctes.',
+            buttons: ['D\'accord', 'Euh ... je vais faire demi-tour alors.']
+        });
+        */
+    }
+   
+    event.sender.send('validDataReply', 'groupedScannedFiles');
 });
 
 function processFile() {
@@ -271,7 +290,7 @@ const readQRCode = async (filePath) => {
       }
     }
     catch(error){
-      return error + '- ';
+      return error + '- AFB QRCODE NOT FOUND';
     }
 }
 
@@ -292,11 +311,11 @@ const readQRCode2 = async (filename) => {
       return error + '- ';
     }
   }
-  readQRCode2('./assets/img/numarch.jpg').then((message) => {
+ /* readQRCode2('./assets/img/numarch.jpg').then((message) => {
     console.log("qrcode = "+message);
     }).catch(console.log);
   readQRCode2('./assets/img/image-002.jpg').then(console.log).catch(console.log);
-
+*/
  function extractInformation(message) {
     var trx = {};
     trx.setEve = message.substring(0, 6);
@@ -305,7 +324,7 @@ const readQRCode2 = async (filename) => {
     trx.setCle = message.substring(22, 24);
     trx.setDco = message.substring(24, 32);
     trx.setUti = message.substring(32, 36);
-    trx.setMon = message.substring(36, 50);
+    trx.setMon = parseInt(message.substring(36, 50));
     trx.setType = message.substring(50);
 
     console.log(JSON.stringify(trx))

@@ -38,7 +38,7 @@
                 <button
                     class="bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
                     type="button" 
-                    (click)="split()" [disabled] = "image_in" [hidden] = "instance"
+                    (click)="split()" style="display:none;"
                 >
                     <i title="Lancer l'indexation" class="fa fa-chrome" aria-hidden="true"></i>
                     Indexer
@@ -57,42 +57,39 @@
                 <div class="custom-scroll-bar flex-auto" >
                
                     <div class="relative ml-2 mr-2 mt-2">
-                        <label for="testlist" class="form-label text-xs font-bold">Type de document</label>
-                        <select class="form-select text-xs" id="testlist" name="sellist" onchange="retrieveDocument();">
-                        <!--  <option value="">Choisir le type de document</option>
-                          <option value="70%">70</option>
-                          <option value="75%">75</option>
-                          <option value="85%">85</option>
-                          <option value="90%">90</option>-->
+                        <span id="sp_testlist"><label for="testlist" class="form-label text-xs font-bold">Type de document</label>*</span>
+                        <select class="form-select text-xs  type_doc" id="testlist" name="sellist" onchange="retrieveDocument();">
+                      
                         </select>
                         
                     </div>
     
                     <div class="ml-2 mr-2 mt-2">
-                        <label for="user" class="form-label text-xs font-bold">Caissier</label>
+                        <span id="sp_user"><label for="user" class="form-label text-xs font-bold">Caissier</label>*</span>
                         <input type="text" class="form-control" id="user" placeholder="Caissier" name="user" maxlength="4">
                     </div>
                     
                     <div class="ml-2 mr-2 mt-2">
-                        <label for="ncp" class="form-label text-xs font-bold">Numéro de compte</label>
+                        <span id="sp_ncp"><label for="ncp" class="form-label text-xs font-bold">Numéro de compte</label>*</span>
                         <input type="text" class="form-control" id="ncp" placeholder="Numéro de compte" name="ncp" maxlength="20">
                     </div>
                     <div class="ml-2 mr-2 mt-2">
-                        <label for="amount" class="form-label text-xs font-bold">Montant</label>
-                        <input type="number" class="form-control mask" id="amount" placeholder="Montant" name="ncp" min="100" max="5000" step='100'>
+                        <span id="sp_amount"><label for="amount" class="form-label text-xs font-bold">Montant</label>*</span>
+                        <input type="number" class="form-control mask" id="amount" placeholder="Montant" required name="amount" min="100" max="5000" step='100'>
                     </div>
                     <div class="ml-2 mr-2 mt-2">
-                        <label for="ref" class="form-label text-xs font-bold">Reference transaction</label>
-                        <input type="text" class="form-control" id="ref" placeholder="Reference" name="ncp" maxlength="6" onkeypress="return verifNumber(event);">
+                        <span id="sp_ref"><label for="ref" class="form-label text-xs font-bold">Reference transaction</label>*</span>
+                        <input type="text" class="form-control" id="ref" placeholder="Reference" name="ref" required maxlength="6" onkeypress="return verifNumber(event);">
                     </div>
                     <div class="ml-2 mr-2 mt-2 text-blueGray-700 text-xs">
-                        <label for="age" class="form-label text-xs font-bold">Agence</label>
-                        <input type="text" class="form-control" id="age" placeholder="Agence" name="ncp" maxlength="5" onkeypress="return verifNumber(event);">
+                        <span id="sp_age"><label for="age" class="form-label text-xs font-bold">Agence</label>*</span>
+                        <input type="text" class="form-control" id="age" placeholder="Agence" name="age" required maxlength="5" onkeypress="return verifNumber(event);">
+                       
                     </div>
 
                     <div class="ml-2 mr-2 mt-2 text-blueGray-700 text-xs">
                       
-                        <label for="age" class="form-label text-xs font-bold">Date</label>
+                        <span id="sp_date"><label for="date" class="form-label text-xs font-bold">Date</label> *</span>
                         <div class="input-group date" id="datepicker">
                             <input type="date" class="form-control" id="date"/>
                           <!--  <span class="input-group-append">
@@ -109,8 +106,8 @@
                 <div  class="border-blueGray-500 w-full lg:w-11/12 flex justify-end py-2 mb-0" >
                     <button
                         class="bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
-                        type="button" 
-                        (click)="split()" [disabled] = "image_in" [hidden] = "instance"
+                        type="button" id="validData"
+                        onclick="updateProperties();"
                     >
                         <i class="fa fa-cart-plus" aria-hidden="true" style="color:rgb(253, 246, 246)"></i>
                         Ajouter
@@ -128,7 +125,7 @@
             <button
                 class="bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
                 type="button" 
-                (click)="split()" [disabled] = "image_in" [hidden] = "instance"
+                onclick="onSplit();" [disabled] = "image_in" [hidden] = "instance"
             >
                 <i title="Decoupage" class="fas fa-magic" aria-hidden="true"></i>
                 Split
