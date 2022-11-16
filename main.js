@@ -99,6 +99,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
     
     console.log(args+' -- Erreur ! Veuillez rapporter ce bug au développeur de l\'application.');
     var scanFiles = [];
+    var groupedScannedFiles = []
 
     //joining path of directory 
     const directoryPath = path.join('C:\\numarch\\', 'scans');
@@ -127,7 +128,8 @@ ipcMain.on("loadScanFile", async (event, args) => {
     }
 
 
-
+     var countFiles = 0;
+     var numberFiles;
      //passsing directoryPath and callback function
      fs.readdir(directoryPath, async function (err, files) {
         //handling error
@@ -135,21 +137,53 @@ ipcMain.on("loadScanFile", async (event, args) => {
             return console.log('Unable to scan directory: ' + err);
         } 
 
+       numberFiles = files.length
        await files.forEach(async function (file) {
             // Do whatever you want to do with the file
             var obj;
             obj = {}
             obj.filenom = ""
             obj.enbase64 = ""
+            obj.state = false
+            obj.data = ""
         //    console.log(file); 
             obj.filenom = file
             obj.enbase64 = await base64_encode(path.join(directoryPath, file))
-            scanFiles.push(obj);
+            obj.enbase64 = ""
+           
+            await readQRCode(path.join(directoryPath, file))
+                  .then((message) => {
+                    
+                    countFiles++;
+                    if (message.indexOf('patterns:0') !== -1) {
+                        console.log("qrcode = "+message);
+                        obj.state = false
+                        obj.data = ""
+                        scanFiles.push(obj);
+                    }
+                    else{
+                        console.log("qrcode = "+message);
+                        obj.state = true
+                        obj.data = message
+                        scanFiles.push(obj);
+                        groupedScannedFiles.push(scanFiles)
+                        scanFiles = [];
+                    }
+                
+                    if(countFiles === numberFiles) {
+                        console.log("countFiles = "+countFiles)
+                        event.sender.send('actionReply', groupedScannedFiles);
+                    }
+                  }).catch((err) => {
+                    console.log("error: " + err);
+                    obj.state = false
+                    obj.data = ""
+                    scanFiles.push(obj);
+                  });
             
         });
-
         // Send result back to renderer process
-        event.sender.send('actionReply', scanFiles);
+        
         
     });
 /*
@@ -224,7 +258,24 @@ function base64_decode(base64str, file) {
 
 
 
-const readQRCode = async (filename) => {
+const readQRCode = async (filePath) => {
+    try{
+      if (fs.existsSync(filePath)) {
+        const img = await Jimp.read(fs.readFileSync(filePath));
+        const qr = new QrCode();
+        const value = await new Promise((resolve, reject) => {
+          qr.callback = (err, v) => err != null ? reject(err) : resolve(v);
+          qr.decode(img.bitmap);
+        });
+        return value.result;
+      }
+    }
+    catch(error){
+      return error + '- ';
+    }
+}
+
+const readQRCode2 = async (filename) => {
     const filePath = path.join(__dirname, filename);
     try{
       if (fs.existsSync(filePath)) {
@@ -238,9 +289,12 @@ const readQRCode = async (filename) => {
       }
     }
     catch(error){
-      return error;
+      return error + '- ';
     }
   }
-  readQRCode('./assets/img/image-002.jpg').then(console.log).catch(console.log);
+  readQRCode2('./assets/img/numarch.jpg').then((message) => {
+    console.log("qrcode = "+message);
+    }).catch(console.log);
+  readQRCode2('./assets/img/image-002.jpg').then(console.log).catch(console.log);
 
-  
+ 

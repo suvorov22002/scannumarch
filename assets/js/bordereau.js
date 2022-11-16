@@ -154,6 +154,17 @@ function onLoadQRDoc(btn) {
     "<img class='mb-2 responsive' src='"+src+"' alt='bordereau' width='500px' ></img>" + 
     "</div>";
     currentChildren2.append(divContents);
+
+    // Fill properties
+    $("#testlist").val("RETESP")
+    $("#user").val("FOFO");
+    $("#ncp").val("05957051051-68");
+    $("#amount").val("25000000");
+    $("#ref").val("334102");
+    $("#age").val("00001");
+  //  $("#date").val("11/10/2022");
+    document.getElementById("date").value = "2022-11-10";
+    
 }
 
 function onSupp(btn) {
@@ -195,7 +206,8 @@ asyncMsgBtn.addEventListener('click', () => {
     
 
     ipc.once('actionReply', async function(event, response){
-       //console.log("Response: ",JSON.stringify(response))
+       console.log("Response: ",JSON.stringify(response))
+      
        if (response.length === 0) {
           alert('Aucun document à numeriser.');
           return;
