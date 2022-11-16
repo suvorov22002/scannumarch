@@ -138,6 +138,10 @@ ipcMain.on("loadScanFile", async (event, args) => {
         } 
 
        numberFiles = files.length
+       if (numberFiles == 0) {
+          dialog.showErrorBox('AFB-SCANNUMARCH', 'Aucun document à numeriser.');
+       }
+
        await files.forEach(async function (file) {
             // Do whatever you want to do with the file
             var obj;
@@ -176,6 +180,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
                             groupedScannedFiles.push(scanFiles)
                         }
                         event.sender.send('actionReply', groupedScannedFiles);
+                       
                     }
                   }).catch((err) => {
                     console.log("error: " + err);

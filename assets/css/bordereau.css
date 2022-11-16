@@ -183,4 +183,10 @@ img {
   font-weight: bold
 }
 
+.grid-container {
+  display: inline-grid;
+  grid-template-columns: auto auto auto;
+  padding: 5px;
+}
+
   

@@ -1,7 +1,8 @@
 let globalResponse; // handle array of object's  (name and base64)
 let map = new Map();
 let charge = 0;
-const { dialog } = require('electron');
+const fs = require('fs');
+const path = require('path');
 
 let filteredTypes = [
     { code: 'NULL', name: 'Choisir le type de document' },
@@ -238,7 +239,7 @@ asyncMsgBtn.addEventListener('click', () => {
        //console.log("Response: ",JSON.stringify(response))
       
        if (response.length === 0) {
-          alert('Aucun document à numeriser.');
+         // alert('Aucun document à numeriser.');
           return;
        }
 
@@ -349,6 +350,10 @@ function onSplit() {
     }
   }
 
+  if (arrayRemovedFiles.length == 0) {
+     return;
+  }
+
   //console.log(JSON.stringify(arrayRemovedFiles))
 
   // Ajout dans globalResponse
@@ -440,7 +445,7 @@ function updateProperties() {
       ipc.once('validDataReply', function(event, response){
           console.log(response)
       });
-      
+
     }
 }
 
@@ -541,9 +546,59 @@ function verifierInt(_echar){
 	
 }
 
-//$('#date').css('border', '2px solid green');
-//$('#sp_age').addClass('error')
-//document.getElementById('sp_age').classList.add('error')
+function sendToFusion() {
+
+   var dirIndexes = 'C:\\numarch\\indexes';
+   var dirWorks = 'C:\\numarch\\works';
+   var dirScans = 'C:\\numarch\\scans';
+   
+   
+
+
+  if (globalResponse && globalResponse.length > 0) {
+      
+    let buff;   
+    globalResponse.forEach(file => {
+       var intermData = file[file.length - 1].filenom;
+       var intermState = file[file.length - 1].state;
+       const lastDot = intermData.lastIndexOf('.');
+       var fileNom =   intermData.substring(0, lastDot);
+       var intFolder = path.join(dirIndexes, fileNom);
+       var intFolderWorks = path.join(dirWorks, fileNom);
+
+       file.forEach(f => {
+          if(intermState || f.state){
+            if (!fs.existsSync(intFolder)){
+              fs.mkdirSync(intFolder, { recursive: true });
+            }
+            buff = Buffer.from(f.enbase64, 'base64');
+            fs.writeFileSync(path.join(intFolder, f.filenom), buff);
+           
+          }
+          else if(!intermState || !f.state) {
+            if (!fs.existsSync(intFolderWorks)){
+              fs.mkdirSync(intFolderWorks, { recursive: true });
+            }
+            buff = Buffer.from(f.enbase64, 'base64');
+            fs.writeFileSync(path.join(intFolderWorks, f.filenom), buff);
+           
+          }
+          
+          deleteFile(path.join(dirScans, f.filenom))
+       })
+    })
+
+   }
+}
+
+function deleteFile(directoryPAth) {
+  fs.unlink(directoryPAth, (err) => {
+    if (err) {
+        throw err;
+    }
+    console.log("Delete File successfully.");
+  });
+}
 
 
 
