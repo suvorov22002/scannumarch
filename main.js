@@ -164,7 +164,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
                     else{
                         console.log("qrcode = "+message);
                         obj.state = true
-                        obj.data = message
+                        obj.data = extractInformation(message)
                         scanFiles.push(obj);
                         groupedScannedFiles.push(scanFiles)
                         scanFiles = [];
@@ -297,4 +297,17 @@ const readQRCode2 = async (filename) => {
     }).catch(console.log);
   readQRCode2('./assets/img/image-002.jpg').then(console.log).catch(console.log);
 
- 
+ function extractInformation(message) {
+    var trx = {};
+    trx.setEve = message.substring(0, 6);
+    trx.setAge = message.substring(6, 11);
+    trx.setNcp = message.substring(11, 22);
+    trx.setCle = message.substring(22, 24);
+    trx.setDco = message.substring(24, 32);
+    trx.setUti = message.substring(32, 36);
+    trx.setMon = message.substring(36, 50);
+    trx.setType = message.substring(50);
+
+    console.log(JSON.stringify(trx))
+    return trx;
+ }

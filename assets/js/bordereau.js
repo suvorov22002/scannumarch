@@ -214,6 +214,10 @@ asyncMsgBtn.addEventListener('click', () => {
        }
 
        globalResponse = response;
+
+       var nn = globalResponse.length;
+       var lastFilesRetrieved = globalResponse[nn-1]
+       var fileDisplayed = lastFilesRetrieved[lastFilesRetrieved.length-1]
 /*       
        for (let i = 0; i < response.length; i++) {
           
@@ -237,8 +241,9 @@ asyncMsgBtn.addEventListener('click', () => {
        }
 
        let currentProcess = $('#process');
-       for (let j = 0; j < response.length; j++) {
-           currentProcess.append("<button type='button' id='btn-" + j + "' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+response[j].filenom+"</button>")
+       for (let j = 0; j < globalResponse.length; j++) {
+           var internData = globalResponse[j];
+           currentProcess.append("<button type='button' id='btn-" + j + "' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
            currentProcess.append("<button type='button' class='mr-2' id='btnOne-" + j + "' title='Supprimer ce dossier.' onclick='onSupp(this);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
            currentProcess.append("<button type='button' class='mr-2' id='btnTwo-" + j + "' title='Valider les Proprietés.' onclick ='onUpdate(this);'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
        }
