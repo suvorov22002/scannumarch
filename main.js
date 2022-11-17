@@ -97,39 +97,68 @@ app.on('window-all-closed', function () {
 
 ipcMain.on("loadScanFile", async (event, args) => {
     
-    console.log(args+' -- Erreur ! Veuillez rapporter ce bug au développeur de l\'application.');
+    console.log(args+' -- Recherche des fichiers à indexer.');
     var scanFiles = [];
     var groupedScannedFiles = []
-
+    var countFiles = 0;
+    var numberFiles;
     //joining path of directory 
     const directoryPath = path.join('C:\\numarch\\', 'scans');
-    var dirScans = 'C:\\numarch\\scans';
-    var dirIndexes = 'C:\\numarch\\indexes';
-    var dirAlfreco = 'C:\\numarch\\alfresco';
-    var dirWorks = 'C:\\numarch\\works';
+    const indexedPath = path.join('C:\\numarch\\', 'indexes');
+    const worksPath = path.join('C:\\numarch\\', 'works');
 
-    // Configure all directories
+    // Scans works folders
+    var indexedDir = fs.readdirSync(indexedPath);
+    for (var ind = 0; indexedDir.length; ind++) {
+        console.log(indexedDir[ind]);
+    }
+/*
+    fs.readdir(indexedPath, async function (err, files) {
+        
+        if (err) {
+            console.log('Unable to scan directory: ' + err);
+        } 
 
-    /* Repertoire des dossiers scannés en attente d'indexation */
-    if (!fs.existsSync(dirScans)){
-        fs.mkdirSync(dirScans, { recursive: true });
-    }
-    /* Repertoire des dossiers scannés en attente d'indexation */
-    if (!fs.existsSync(dirIndexes)){
-        fs.mkdirSync(dirIndexes, { recursive: true });
-    }
-    /* Repertoire des dossiers traités en attente denvoi vers alfresco */
-    if (!fs.existsSync(dirAlfreco)){
-        fs.mkdirSync(dirAlfreco, { recursive: true });
-    }
-    /* Repertoire des dossiers en cours de traitement */
-    if (!fs.existsSync(dirWorks)){
-        fs.mkdirSync(dirWorks, { recursive: true });
-    }
+        
+        await files.forEach(async function (dir) {
+            //console.log(dir);
+            var countFiles = 0;
 
+            fs.readdir(path.join(indexedPath, dir), async function (err, dirfiles) {
+                var nbre = 0;
+                countFiles = dirfiles.length;
+                numberFiles = numberFiles + dirfiles.length
 
-     var countFiles = 0;
-     var numberFiles;
+                dirfiles.forEach(async indexfile => {
+                    console.log(indexfile);
+                    var obj;
+                    obj = {}
+                    obj.filenom = ""
+                    obj.enbase64 = ""
+                    obj.state = false
+                    obj.data = ""
+                    obj.filenom = indexfile
+                    obj.enbase64 = await base64_encode(path.join(indexedPath, dir, indexfile));
+                    
+                    nbre++;
+                    if (countFiles == nbre) {
+                        obj.state = true;
+                        scanFiles.push(obj);
+                        groupedScannedFiles.push(scanFiles)
+                    }
+                    else{
+                        scanFiles.push(obj);
+                    }
+                });
+            }); 
+        })
+
+    });
+*/
+    fs.readdir(worksPath, async function (err, files) {
+    
+    });
+
      //passsing directoryPath and callback function
      fs.readdir(directoryPath, async function (err, files) {
         //handling error
@@ -137,7 +166,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
             return console.log('Unable to scan directory: ' + err);
         } 
 
-       numberFiles = files.length
+       numberFiles = numberFiles + files.length
        if (numberFiles == 0) {
           dialog.showErrorBox('AFB-SCANNUMARCH', 'Aucun document à numeriser.');
        }
@@ -192,6 +221,8 @@ ipcMain.on("loadScanFile", async (event, args) => {
         });
         // Send result back to renderer process
     });
+
+    console.log(groupedScannedFiles.length)
 /*
     dialog.showOpenDialog(mainWindow, {
         //properties: ['openFile', 'openDirectory'],
