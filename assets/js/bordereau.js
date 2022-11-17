@@ -588,6 +588,12 @@ function sendToFusion() {
        })
     })
 
+      var fields = ['testlist', 'user', 'ncp', 'amount', 'ref', 'age', 'date'];
+      for (obj in fields) {
+        var elem = 'sp_'+fields[obj]
+        document.getElementById(elem).classList.remove('error');
+      }
+
    }
 }
 
@@ -600,5 +606,13 @@ function deleteFile(directoryPAth) {
   });
 }
 
+function deleteFolder(dir) {
+  try {
+    fs.rmdirSync(dir, { recursive: true });
+    console.log(`${dir} is deleted!`);
+  } catch (err) {
+      console.error(`Error while deleting ${dir}.`);
+  }
+}
 
 

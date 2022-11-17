@@ -191,8 +191,6 @@ ipcMain.on("loadScanFile", async (event, args) => {
             
         });
         // Send result back to renderer process
-        
-        
     });
 /*
     dialog.showOpenDialog(mainWindow, {

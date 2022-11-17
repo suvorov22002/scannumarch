@@ -34,6 +34,7 @@
     "ngx-pagination": "^6.0.2",
     "ngx-permissions": "^8.1.1",
     "primeicons": "^2.0.0",
-    "qrcode-reader": "^1.0.4"
+    "qrcode-reader": "^1.0.4",
+    "xmlbuilder": "^15.1.1"
   }
 }
