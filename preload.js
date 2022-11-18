@@ -23,8 +23,7 @@
 
   
 function configFolders() {
-  //joining path of directory 
-  const directoryPath = path.join('C:\\numarch\\', 'scans');
+  
   var dirScans = 'C:\\numarch\\scans';
   var dirIndexes = 'C:\\numarch\\indexes';
   var dirAlfreco = 'C:\\numarch\\alfresco';

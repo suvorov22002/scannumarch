@@ -107,58 +107,160 @@ ipcMain.on("loadScanFile", async (event, args) => {
     const indexedPath = path.join('C:\\numarch\\', 'indexes');
     const worksPath = path.join('C:\\numarch\\', 'works');
 
-    // Scans works folders
-    var indexedDir = fs.readdirSync(indexedPath);
-    for (var ind = 0; indexedDir.length; ind++) {
-        console.log(indexedDir[ind]);
+    // Scans folders
+    var indexedDir;
+    //console.log(JSON.stringify(indexedDir));
+    var inFileName;
+    var inFileNames;
+    var str64;
+    var obj;
+    var nbre;
+    var countFiles;
+    var loadData;
+    var content;
+
+    indexedDir = fs.readdirSync(indexedPath);
+
+    for (var ind = 0; ind < indexedDir.length; ind++) {
+        //console.log('Index Folder: ' ,indexedDir[ind]);
+        inFileName = indexedDir[ind];
+        inFileNames = fs.readdirSync(path.join(indexedPath, inFileName));
+        countFiles = inFileNames.length - 1;
+        nbre = 0;
+        scanFiles = [];
+
+        content = fs.readFileSync(path.join(indexedPath, inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
+        loadData = JSON.parse(content); //now it an object
+       /*
+        fs.readFile(path.join(indexedPath, inFileName, 'data.json'), 'utf8', function readFileCallback(err, data){
+            if (err){
+                console.log(err);
+            } else {
+            loadData = JSON.parse(data); //now it an object
+            
+        }});*/
+
+       // console.log(JSON.stringify(inFileNames));
+        for (f in inFileNames) {
+            
+            if (inFileNames[f] === 'data.json') continue;
+               
+            obj = {}
+            obj.filenom = ""
+            obj.enbase64 = ""
+            obj.state = false
+            obj.data = "" //TODO: extract data from xml file
+            obj.filenom = inFileNames[f];
+            obj.enbase64 = await base64_encode(path.join(indexedPath, inFileName, inFileNames[f]));
+            nbre++;
+            if (countFiles == nbre) {
+                obj.state = true;
+                obj.data = loadData;
+                scanFiles.push(obj);
+                groupedScannedFiles.push(scanFiles)
+            }
+            else{
+                scanFiles.push(obj);
+            }
+
+        }
     }
-/*
-    fs.readdir(indexedPath, async function (err, files) {
-        
-        if (err) {
-            console.log('Unable to scan directory: ' + err);
-        } 
+    console.log('scanned: ',groupedScannedFiles.length);
+    
+    // Scans works directory
 
-        
-        await files.forEach(async function (dir) {
-            //console.log(dir);
-            var countFiles = 0;
+    scanFiles = [];
+    indexedDir = fs.readdirSync(worksPath);
 
-            fs.readdir(path.join(indexedPath, dir), async function (err, dirfiles) {
-                var nbre = 0;
-                countFiles = dirfiles.length;
-                numberFiles = numberFiles + dirfiles.length
+    for (var ind = 0; ind < indexedDir.length; ind++) {
+        console.log('Index Folder: ' ,indexedDir[ind]);
+        inFileName = indexedDir[ind];
+        inFileNames = fs.readdirSync(path.join(worksPath, inFileName));
+        countFiles = inFileNames.length;
+        nbre = 0;
+        scanFiles = [];
 
-                dirfiles.forEach(async indexfile => {
-                    console.log(indexfile);
-                    var obj;
-                    obj = {}
-                    obj.filenom = ""
-                    obj.enbase64 = ""
-                    obj.state = false
-                    obj.data = ""
-                    obj.filenom = indexfile
-                    obj.enbase64 = await base64_encode(path.join(indexedPath, dir, indexfile));
+       // console.log(JSON.stringify(inFileNames));
+        for (f in inFileNames) {
+            
+            obj = {}
+            obj.filenom = ""
+            obj.enbase64 = ""
+            obj.state = false
+            obj.data = "" //TODO: extract data from xml file
+            obj.filenom = inFileNames[f];
+            obj.enbase64 = await base64_encode(path.join(worksPath, inFileName, inFileNames[f]));
+            scanFiles.push(obj);
+            nbre++;
+            if (countFiles == nbre) {
+                groupedScannedFiles.push(scanFiles)
+            }
+        }
+    }
+    console.log('scanned: ',groupedScannedFiles.length);
+
+    scanFiles = [];
+    indexedDir = fs.readdirSync(directoryPath);
+    countFiles = indexedDir.length;
+    nbre = 0;
+
+    if (countFiles == 0) {
+        event.sender.send('actionReply', groupedScannedFiles);
+    }
+    else{
+        for (var ind in indexedDir) {
+            console.log('Index Folder: ' ,indexedDir[ind]);
+            inFileName = indexedDir[ind];
+             
+            obj = {}
+            obj.filenom = ""
+            obj.enbase64 = ""
+            obj.state = false
+            obj.data = "" //TODO: extract data from xml file
+            obj.filenom = inFileName;
+            obj.enbase64 = await base64_encode(path.join(directoryPath, inFileName));
+            
+            
+            await readQRCode(path.join(directoryPath, inFileName))
+                    .then((message) => {
                     
                     nbre++;
-                    if (countFiles == nbre) {
-                        obj.state = true;
+                    if (message.indexOf('AFB QRCODE NOT FOUND') !== -1) {
+                        console.log("qrcode = "+message);
+                        obj.state = false
+                        obj.data = ""
                         scanFiles.push(obj);
-                        groupedScannedFiles.push(scanFiles)
                     }
                     else{
+                        console.log("qrcode = "+message);
+                        obj.state = true
+                        obj.data = extractInformation(message)
                         scanFiles.push(obj);
+                        groupedScannedFiles.push(scanFiles)
+                        scanFiles = [];
                     }
-                });
-            }); 
-        })
+                    console.log("countFiles = "+countFiles+", nbre = "+nbre)
+                    if(countFiles === nbre) {
+                        console.log("countFiles = "+countFiles)
+                        if (scanFiles.length !==0 ){
+                            groupedScannedFiles.push(scanFiles)
+                        }
+                        event.sender.send('actionReply', groupedScannedFiles);
+                        
+                    }
+                    }).catch((err) => {
+                    console.log("error: " + err);
+                    obj.state = false
+                    obj.data = ""
+                    scanFiles.push(obj);
+                    });
+        }
+    }
 
-    });
-*/
-    fs.readdir(worksPath, async function (err, files) {
     
-    });
-
+    
+    
+/*
      //passsing directoryPath and callback function
      fs.readdir(directoryPath, async function (err, files) {
         //handling error
@@ -220,27 +322,10 @@ ipcMain.on("loadScanFile", async (event, args) => {
             
         });
         // Send result back to renderer process
-        
-        
     });
 
-    console.log(groupedScannedFiles.length)
-/*
-    dialog.showOpenDialog(mainWindow, {
-        //properties: ['openFile', 'openDirectory'],
-        properties: ['openFile','multiSelections'],
-        defaultPath: "C:\\numarch\\scans"
-      }).then(result => {
-        console.log(result.canceled)
-        console.log(result.filePaths)
-       // result = result.filePaths
-        event.sender.send('actionReply', result);
-      }).catch(err => {
-        console.log(err)
-      })
-
     */
-     
+    console.log('scanned: ',groupedScannedFiles.length);
       // Send result back to renderer process
       //mainWindow.webContents.send("fromMain", responseObj);
   
@@ -250,13 +335,6 @@ ipcMain.on("validData", async (event, args) => {
     console.log('args: '+args)
     if(!args){
         dialog.showErrorBox('AFB-SCANNUMARCH', 'Veuillez renseigner les propriétés correctes.');
-        /*dialog.showMessageBox({
-            type: 'warning',
-            title: 'Attention !',
-            message: 'Veuillez renseigner les propriétés correctes.',
-            buttons: ['D\'accord', 'Euh ... je vais faire demi-tour alors.']
-        });
-        */
     }
    
     event.sender.send('validDataReply', 'groupedScannedFiles');
