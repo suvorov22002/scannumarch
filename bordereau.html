@@ -14,10 +14,14 @@
                             class="mt-2 bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
                         >  -->
                         <button id="fileselect" 
-                            class="mt-2 mb-1 px-4 py-2 font-bold uppercase text-xs bouton"
+                            class="mt-2 mb-1 px-4 py-2 font-bold uppercase text-xs position-relative bouton"
                         >
                             <i title="Lancer l'indexation" class="fa fa-spinner fa-spinner" aria-hidden="true"></i>
                             Charger
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">
+                                50+
+                                <span class="visually-hidden">unread messages</span>
+                              </span>
                         </button>
                         <!-- Fetch selected filed on change accept="application/pdf"-->
                     <!--    <input type="file" class="form-control-file border" id="upload" onchange="uploadFile(this)" name="upload" 
@@ -34,7 +38,7 @@
             </div>
         -->
             <!-- Documents chargés à indexer -->
-            <h4  class="text-blueGray-700 .text-xs font-bold title-imp">Documents à traiter</h4> <br>
+            <h4  class="text-blueGray-700 .text-xs font-bold title-imp">Documents à traiter <span id="anomalie" class="w3-badge w3-large w3-padding w3-red">50+</span></h4> <br>
                 <button
                     class="bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
                     type="button" 
@@ -42,6 +46,14 @@
                 >
                     <i title="Lancer l'indexation" class="fa fa-chrome" aria-hidden="true"></i>
                     Indexer
+                </button>
+
+                <button type="button" class="btn btn-primary position-relative" style="display:none;">
+                    A traiter
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      50+
+                      <span class="visually-hidden">unread messages</span>
+                    </span>
                 </button>
               
             <div class="w-full bg-white px-4 custom-doc-scroll-bar mt-1 flex-auto" >

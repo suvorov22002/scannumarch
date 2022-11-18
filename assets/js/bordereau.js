@@ -200,6 +200,16 @@ function onUpdate(btn) {
   var index = id.split('-')[1]
   console.log("globalResponse: "+id)
   document.getElementById("btn-"+index).style.borderColor = "green";
+
+  charge = charge - 1;
+  if (charge < 1) {
+    $('#anomalie').hide();
+  }
+  else{
+    $('#anomalie').show();
+    $('#anomalie').text(charge > 50 ? '50+' : charge);
+  }
+  
 }
 
 function onChecked($event) {
@@ -310,7 +320,7 @@ function fillProperties(internData) {
 }
 
 function anomalies() {
-    
+    charge = 0;
     for (let jj = 0; jj < globalResponse.length; jj++) {
       var internDatas = globalResponse[jj];
       if (internDatas.length > 3){
@@ -321,6 +331,7 @@ function anomalies() {
       else{
         if (internDatas[internDatas.length-1].state){
           document.getElementById("btn-"+jj).style.borderColor = "green";
+          internDatas[internDatas.length-1].state = true
         }
         else{
           document.getElementById("btn-"+jj).style.borderColor = "red";
@@ -328,6 +339,15 @@ function anomalies() {
         }
       }
   }
+  
+  if (charge < 1) {
+    $('#anomalie').hide();
+  }
+  else{
+    $('#anomalie').show();
+    $('#anomalie').text(charge > 50 ? '50+' : charge);
+  }
+  
 
 }
 
@@ -565,11 +585,15 @@ function sendToFusion() {
        var fileNom =   intermData.substring(0, lastDot);
        var intFolder = path.join(dirIndexes, fileNom);
        var intFolderWorks = path.join(dirWorks, fileNom);
+       var jsonVariable = JSON.stringify(file[file.length-1].data);
+       
 
        file.forEach(f => {
           if(intermState || f.state){
             if (!fs.existsSync(intFolder)){
               fs.mkdirSync(intFolder, { recursive: true });
+              console.log('last data: ', jsonVariable);
+              fs.writeFileSync(path.join(intFolder, 'data.json'), jsonVariable);
             }
             buff = Buffer.from(f.enbase64, 'base64');
             fs.writeFileSync(path.join(intFolder, f.filenom), buff);
@@ -606,6 +630,7 @@ function deleteFile(directoryPAth) {
   });
 }
 
+<<<<<<< HEAD
 function deleteFolder(dir) {
   try {
     fs.rmdirSync(dir, { recursive: true });
@@ -614,5 +639,9 @@ function deleteFolder(dir) {
       console.error(`Error while deleting ${dir}.`);
   }
 }
+=======
+$('#anomalie').hide(); // hide span badge
+
+>>>>>>> 069161abe09a6c1a3bfee03b5557ccf8dbcf2084
 
 
