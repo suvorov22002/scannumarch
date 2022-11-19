@@ -17,10 +17,12 @@ var Jimp = require("jimp");
 var QrCode = require('qrcode-reader');
 const { resolve } = require('path');
 const { rejects } = require('assert');
+const moment = require('moment');
 
-
-
+const simpleFormat = 'YYMMDDHHmmssSSSS'; 
 let mainWindow;
+
+const ProgressBar = require('electron-progressbar');
 
 function createWindow () {
 
@@ -128,9 +130,15 @@ ipcMain.on("loadScanFile", async (event, args) => {
         countFiles = inFileNames.length - 1;
         nbre = 0;
         scanFiles = [];
+        loadData = ""
 
-        content = fs.readFileSync(path.join(indexedPath, inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
-        loadData = JSON.parse(content); //now it an object
+        
+        try{
+            content = fs.readFileSync(path.join(indexedPath, inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
+            loadData = JSON.parse(content); //now it an object
+        } catch (err) {
+             console.error();
+        }
        /*
         fs.readFile(path.join(indexedPath, inFileName, 'data.json'), 'utf8', function readFileCallback(err, data){
             if (err){
@@ -176,13 +184,26 @@ ipcMain.on("loadScanFile", async (event, args) => {
         console.log('Index Folder: ' ,indexedDir[ind]);
         inFileName = indexedDir[ind];
         inFileNames = fs.readdirSync(path.join(worksPath, inFileName));
-        countFiles = inFileNames.length;
+        countFiles = inFileNames.length - 1;
         nbre = 0;
         scanFiles = [];
+        loadData = ""
+       /// if (fs.existsSync(dir)) { 
+        try{
+            content = fs.readFileSync(path.join(worksPath, inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
+            console.log(content);
+            loadData = JSON.parse(content); //now it an object
+        } catch (err) {
+             countFiles++;
+             console.error();
+        }
+       
 
        // console.log(JSON.stringify(inFileNames));
         for (f in inFileNames) {
-            
+
+            if (inFileNames[f] === 'data.json') continue;
+
             obj = {}
             obj.filenom = ""
             obj.enbase64 = ""
@@ -190,10 +211,15 @@ ipcMain.on("loadScanFile", async (event, args) => {
             obj.data = "" //TODO: extract data from xml file
             obj.filenom = inFileNames[f];
             obj.enbase64 = await base64_encode(path.join(worksPath, inFileName, inFileNames[f]));
-            scanFiles.push(obj);
+            
             nbre++;
             if (countFiles == nbre) {
+                obj.data = loadData;
+                scanFiles.push(obj);
                 groupedScannedFiles.push(scanFiles)
+            }
+            else{
+                scanFiles.push(obj);
             }
         }
     }
@@ -203,21 +229,27 @@ ipcMain.on("loadScanFile", async (event, args) => {
     indexedDir = fs.readdirSync(directoryPath);
     countFiles = indexedDir.length;
     nbre = 0;
+    var timestamp;
 
     if (countFiles == 0) {
-        event.sender.send('actionReply', groupedScannedFiles);
+       
+        event.sender.send('actionReply', groupedScannedFiles.reverse());
     }
     else{
         for (var ind in indexedDir) {
             console.log('Index Folder: ' ,indexedDir[ind]);
             inFileName = indexedDir[ind];
+
+            timestamp = new Date();
+            var instantTime = moment(timestamp).format(simpleFormat); 
+            console.log('instantTime ',instantTime);
              
             obj = {}
             obj.filenom = ""
             obj.enbase64 = ""
             obj.state = false
             obj.data = "" //TODO: extract data from xml file
-            obj.filenom = inFileName;
+            obj.filenom = 'tmp_' + instantTime + '_' + inFileName;
             obj.enbase64 = await base64_encode(path.join(directoryPath, inFileName));
             
             
@@ -245,8 +277,8 @@ ipcMain.on("loadScanFile", async (event, args) => {
                         if (scanFiles.length !==0 ){
                             groupedScannedFiles.push(scanFiles)
                         }
-                        event.sender.send('actionReply', groupedScannedFiles);
-                        
+                       
+                        event.sender.send('actionReply', groupedScannedFiles.reverse());
                     }
                     }).catch((err) => {
                     console.log("error: " + err);
@@ -388,6 +420,15 @@ function base64_decode(base64str, file) {
     fs.writeFileSync(file, bitmap);
     console.log('******** File created from base64 encoded string ********');
 }
+
+function createGif() {
+    const loadingImageDate = "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";
+    var chemin = path.join(__dirname, 'assets/img/loading.gif')
+    var bitmap = Buffer.from(loadingImageDate, 'base64');
+    fs.writeFileSync(chemin, bitmap);
+
+}
+
 
 
 

@@ -18,11 +18,17 @@
                         >
                             <i title="Lancer l'indexation" class="fa fa-spinner fa-spinner" aria-hidden="true"></i>
                             Charger
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">
+                            <span class="spinner-border spinner-border-sm aria-hidden="true" position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">
                                 50+
                                 <span class="visually-hidden">unread messages</span>
                               </span>
                         </button>
+<!--
+                        <button class="btn btn-primary" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Loading...
+                          </button>
+                        -->
                         <!-- Fetch selected filed on change accept="application/pdf"-->
                     <!--    <input type="file" class="form-control-file border" id="upload" onchange="uploadFile(this)" name="upload" 
                          multiple  />
@@ -51,7 +57,7 @@
                 <button type="button" class="btn btn-primary position-relative" style="display:none;">
                     A traiter
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                      50+
+                      0
                       <span class="visually-hidden">unread messages</span>
                     </span>
                 </button>
@@ -83,7 +89,7 @@
                     
                     <div class="ml-2 mr-2 mt-2">
                         <span id="sp_ncp"><label for="ncp" class="form-label text-xs font-bold">Numéro de compte</label>*</span>
-                        <input type="text" class="form-control" id="ncp" placeholder="Numéro de compte" name="ncp" maxlength="20">
+                        <input type="text" class="form-control" id="ncp" placeholder="Numéro de compte" name="ncp" maxlength="14">
                     </div>
                     <div class="ml-2 mr-2 mt-2">
                         <span id="sp_amount"><label for="amount" class="form-label text-xs font-bold">Montant</label>*</span>
@@ -139,7 +145,7 @@
                 type="button" 
                 onclick="onSplit();" [disabled] = "image_in" [hidden] = "instance"
             >
-                <i title="Decoupage" class="fas fa-magic" aria-hidden="true"></i>
+                <i title="Decoupage" class="fa fa-cut" aria-hidden="true"></i>
                 Split
             </button>
             <button
@@ -154,7 +160,7 @@
             <button
                 class="bg-orange-500 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
                 type="button" 
-                (click)="sendRToAcs()" [disabled] = "image_in" [hidden] = "!instance" 
+                onclick="sendRToAcs();" [disabled] = "image_in" [hidden] = "!instance" 
             >
            
             <i class="fa fa-paper-plane" aria-hidden="true"></i>
@@ -173,4 +179,5 @@
     <!--  </div>
     </div>-->
 </div>
+<div class="modal"><!-- Place at bottom of page --></div>
 <script language="JavaScript" type="text/javascript" src='./assets/js/bordereau.js'></script>

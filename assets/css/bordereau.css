@@ -24,19 +24,19 @@
   overflow-x: hidden;
 }
 
-.custom-scroll-bar::-webkit-scrollbar{
+.icustom-scroll-bar::-webkit-scrollbar{
     width: 5px;
 }
 
-.custom-scroll-bar::-webkit-scrollbar-thumb{
+.icustom-scroll-bar::-webkit-scrollbar-thumb{
     background: rgba(0,0,0,.26);
 }
 
-.draw::-webkit-scrollbar{
+.idraw::-webkit-scrollbar{
   width: 10px;
 }
 
-.draw::-webkit-scrollbar-thumb{
+.idraw::-webkit-scrollbar-thumb{
   background: rgba(48, 47, 47, 0.932);
 }
 
@@ -135,7 +135,7 @@ img {
   }
 
 
-  .active {
+  .onlive {
     background-color: rgb(249, 115, 22);
     color: white;
   }
@@ -187,6 +187,31 @@ img {
   display: inline-grid;
   grid-template-columns: auto auto auto;
   padding: 5px;
+}
+
+
+.modal {
+  display:    none;
+  position:   fixed;
+  z-index:    1000;
+  top:        0;
+  left:       0;
+  height:     100%;
+  width:      100%;
+  background: rgba( 255, 255, 255, .8 )
+  url('../img/loading.gif')
+  50% 50%
+  no-repeat;
+}
+body.loading {
+  overflow: hidden;
+}
+body.loading .modal {
+  display: block;
+}
+
+body {
+background-color: #e1e1e1;
 }
 
   
