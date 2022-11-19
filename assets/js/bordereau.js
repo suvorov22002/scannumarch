@@ -878,6 +878,7 @@ function loadingFiles() {
 async function sendRToAcs() {
   var jpgUrl;
   var orig64;
+  var pdfName;
   //this.afbcore.loading(true);
   
   for (var i = 0; i < globalResponse.length; i++) {
@@ -889,7 +890,7 @@ async function sendRToAcs() {
         orig64 = infiles[ii].enbase64;
         jpgUrl = 'data:image/jpg;base64,' +orig64;
 
-        const jpgImageBytes = await fetch(jpgUrl).then((res) => res.arrayBuffer());
+        const jpgImageBytes = Buffer.from(orig64, 'base64');
 
         //Embed images bytes
         const jpgImage = await pdfDoc.embedJpg(jpgImageBytes);
@@ -907,20 +908,19 @@ async function sendRToAcs() {
           width: jpgDims.width,  //575
           height: jpgDims.height, //815
         })
-      }
 
-      
+        pdfName = infiles[ii].filenom;
+      }
       // Serialize the PDFDocument to bytes 
       const pdfBytes = await pdfDoc.save();
-
-
-      var bytes = new Uint8Array(pdfBytes);
-      var blob = new Blob([bytes], {type: "application/pdf"});
-
-      //TODO: convert pdf file to base64 string
-
-      // Trigger the browser to download the PDF document
-      download(pdfBytes, "pdf-lib_modification_example.pdf", "application/pdf");
+      
+      var callback = (err) => {
+        if (err) throw err;
+        console.log('It\'s saved!');
+      }
+      // Uint8Array
+      const data = new Uint8Array(Buffer.from(pdfBytes));
+      fs.writeFile(path.join(indexedPath, 'pdf-lib_modification_example.pdf'), data, callback);
 
   }
 
