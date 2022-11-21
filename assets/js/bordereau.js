@@ -85,6 +85,20 @@ let filteredTypes = [
     });
   });
 
+  function manageVisibleBtn() {
+    if (globalResponse === undefined || globalResponse.length === 0) {
+        document.getElementById("btnAcs").style.visibility = "hidden"
+        document.getElementById("btnFusion").style.visibility = "hidden"
+        document.getElementById("btnSplit").style.visibility = "hidden"
+    }
+    else{
+      document.getElementById("btnAcs").style.visibility = "visible"
+      document.getElementById("btnFusion").style.visibility = "visible"
+      document.getElementById("btnSplit").style.visibility = "visible"
+    }
+  }
+  manageVisibleBtn();
+
   /* Format account */
   function formatAccount() {
     $('#ncp').keyup(function() {
@@ -314,7 +328,7 @@ asyncMsgBtn.addEventListener('click', () => {
        }
 
        globalResponse = response;
-      
+       manageVisibleBtn();
 
        var nn = globalResponse.length;
        var lastFilesRetrieved = globalResponse[nn-1]
@@ -433,18 +447,19 @@ function anomalies() {
 
 function onSplit() {
   const eleCheck =  $("input.splitAfb");
-  const ls = $("input.splitAfb[type=checkbox]")
+  var ls = $("input.splitAfb[type=checkbox]")
   var fileLive;
   var arrayLive;
   var arrayRemovedFiles = [];
 
   fileLive = localStorage.getItem('CURRENT_FILE');
+  console.log('CURRENT_FILE: '+fileLive)
   if (fileLive) {
     arrayLive = map.get(fileLive)
   }
-
-  for (var i=0; i<ls.length; i++) {
-    console.log(document.getElementById("btnCheck-"+ i).checked)
+ console.log('ls: '+ls.length+' arrayLive: '+arrayLive.length)
+  for (var i=0; i<ls.length-1; i++) {
+    //console.log(document.getElementById("btnCheck-"+ i).checked)
     if (document.getElementById("btnCheck-"+ i).checked) {
         arrayRemovedFiles.push(arrayLive[i])
     }
@@ -460,15 +475,16 @@ function onSplit() {
   globalResponse.push(arrayRemovedFiles)
 
   // Ajouter dans MAP
+  console.log('map: '+arrayRemovedFiles[arrayRemovedFiles.length - 1].filenom)
   map.set(arrayRemovedFiles[arrayRemovedFiles.length - 1].filenom, arrayRemovedFiles);
   
   // Mettre current file (arrayLive) à jour dans MAP
   const jndex = globalResponse.findIndex(object => {
     return object === arrayLive;
   }); 
-  
+  console.log(arrayLive.length)
   arrayLive = arrayLive.filter(item => !arrayRemovedFiles.includes(item))
-
+  console.log(arrayLive.length)
   if (jndex !== -1) {
     arrayLive[arrayLive.length - 1].state = true
     globalResponse[jndex] = arrayLive;
@@ -718,14 +734,15 @@ function sendToFusion() {
    var dirIndexes = 'C:\\numarch\\indexes';
    var dirWorks = 'C:\\numarch\\works';
    var dirScans = 'C:\\numarch\\scans';
-
+   var dirAlfresco = 'C:\\numarch\\alfresco';
+   if (globalResponse === null) return;
    var fusionSize = globalResponse.length;
    var controlSize = 0;
 
 //   console.log('Fusion size: ',globalResponse.length)
    
   if (globalResponse && globalResponse.length > 0) {
-      
+    $('body').addClass('loading')
     let buff;   
     globalResponse.forEach(file => {
        var intermData = file[file.length - 1].filenom;
@@ -733,20 +750,24 @@ function sendToFusion() {
        
        const lastDot = intermData.lastIndexOf('.');
        var fileNom =   intermData.substring(0, lastDot);
-       console.log(fileNom + ' -**- ' + intermState)
+  //     console.log(fileNom + ' -**- ' + intermState)
        var intFolder;  
        var intFolderWorks; 
+       var intFolderAlfreco;
        var realFoder;
        var jsonVariable = JSON.stringify(file[file.length-1].data);
        controlSize++;
        realFoder = fileNom.startsWith('work') ? fileNom.replace('work', 'tmp') : (fileNom.startsWith('index') ? fileNom.replace('index', 'tmp') : fileNom)
        intFolder = path.join(dirIndexes, realFoder); 
        intFolderWorks = path.join(dirWorks, realFoder); 
+       intFolderAlfreco = path.join(dirAlfresco, realFoder); 
        
-       console.log('jsonVariable: ',jsonVariable)
+     //  console.log('jsonVariable: ',jsonVariable)
        var controlTypeObject = (typeof file[file.length-1].data == 'object' && file[file.length-1].data !== null);
 
-       console.log(typeof file[file.length-1].data + ' - ' + controlTypeObject)
+    //   console.log(typeof file[file.length-1].data + ' - ' + controlTypeObject)
+       
+       if (intermState) sendRToAcs(file, intFolderAlfreco);
 
        file.forEach(f => {
           
@@ -810,6 +831,7 @@ function sendToFusion() {
           $("#ref").val("");
           $("#age").val("");
           document.getElementById("date").value = "";
+          $('body').removeClass('loading')
        }
     });
 
@@ -819,6 +841,7 @@ function sendToFusion() {
         document.getElementById(elem).classList.remove('error');
       }
 
+      manageVisibleBtn();
    }
 }
 
@@ -875,12 +898,13 @@ function loadingFiles() {
   )
 }
 
-async function sendRToAcs() {
+async function sendRToAlfresco() {
   var jpgUrl;
   var orig64;
   var pdfName;
   //this.afbcore.loading(true);
-  
+
+ 
   for (var i = 0; i < globalResponse.length; i++) {
       var infiles = globalResponse[i] 
       //Create pdf
@@ -923,6 +947,74 @@ async function sendRToAcs() {
       fs.writeFile(path.join(indexedPath, 'pdf-lib_modification_example.pdf'), data, callback);
 
   }
+
+}
+
+async function sendRToAcs(indexedDir, intFolderAlfreco) {
+  var jpgUrl;
+  var orig64;
+  var dirAlfresco = 'C:\\numarch\\alfresco';
+  var jsonVariable;
+  //this.afbcore.loading(true);
+  var indexedPath = path.join(dirAlfresco)
+  var newName = indexedDir[indexedDir.length - 1].filenom
+  var lastDot = newName.lastIndexOf('.');
+  var composeName =  newName.substring(0, lastDot).split('_')
+  console.log(JSON.stringify(composeName))
+  newName = composeName[1] + '_' + composeName[2]
+  var controlTypeObject = (typeof indexedDir[indexedDir.length - 1].data == 'object' && indexedDir[indexedDir.length - 1].data !== null);
+  
+  //Creation du dossier
+  if (!fs.existsSync(intFolderAlfreco) && controlTypeObject){
+    jsonVariable = JSON.stringify(indexedDir[indexedDir.length - 1].data);
+    fs.mkdirSync(intFolderAlfreco, { recursive: true });
+    fs.writeFileSync(path.join(intFolderAlfreco, 'data.json'), jsonVariable);
+  }
+  
+ 
+  const pdfDoc = await PDFDocument.create();
+  for (var i = 0; i < indexedDir.length; i++) {
+      var infiles = indexedDir[i] 
+      //Create pdf
+      
+
+   //   for(var ii = 0; ii < infiles.length; ii++){
+        orig64 = infiles.enbase64
+        jpgUrl = 'data:image/jpg;base64,' +orig64;
+
+        //console.log(orig64)
+        const jpgImageBytes = Buffer.from(orig64, 'base64');
+
+        //Embed images bytes
+        const jpgImage = await pdfDoc.embedJpg(jpgImageBytes);
+
+        // Get the dimension of the image scaled down do 35% of its original size
+        const jpgDims = jpgImage.scale(0.35);
+
+        // Add a blank page to the document
+        var page = pdfDoc.addPage(PageSizes.A4);
+
+        // Draw the JPG image in the center of the page
+        page.drawImage(jpgImage, {
+          x: page.getWidth() / 2 - jpgDims.width /2,
+          y: page.getHeight() /2 - jpgDims.height /2,
+          width: jpgDims.width,  //575
+          height: jpgDims.height, //815
+        })
+
+  }
+
+    
+      // Serialize the PDFDocument to bytes 
+      const pdfBytes = await pdfDoc.save();
+      
+      var callback = (err) => {
+        if (err) throw err;
+        console.log('It\'s saved!');
+      }
+        // Uint8Array
+        const data = new Uint8Array(Buffer.from(pdfBytes));
+        fs.writeFile(path.join(intFolderAlfreco, newName + '.pdf'), data, callback);
 
 }
 

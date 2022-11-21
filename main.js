@@ -120,7 +120,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
     var countFiles;
     var loadData;
     var content;
-
+/*
     indexedDir = fs.readdirSync(indexedPath);
 
     for (var ind = 0; ind < indexedDir.length; ind++) {
@@ -139,15 +139,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
         } catch (err) {
              console.error();
         }
-       /*
-        fs.readFile(path.join(indexedPath, inFileName, 'data.json'), 'utf8', function readFileCallback(err, data){
-            if (err){
-                console.log(err);
-            } else {
-            loadData = JSON.parse(data); //now it an object
-            
-        }});*/
-
+      
        // console.log(JSON.stringify(inFileNames));
         for (f in inFileNames) {
             
@@ -174,7 +166,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
         }
     }
     console.log('scanned: ',groupedScannedFiles.length);
-    
+ */   
     // Scans works directory
 
     scanFiles = [];
@@ -232,7 +224,30 @@ ipcMain.on("loadScanFile", async (event, args) => {
     var timestamp;
 
     if (countFiles == 0) {
+        var message;
+        if (groupedScannedFiles.length === 0) {
+            var message = "Aucune pièce trouvé."
+            dialog.showMessageBoxSync(mainWindow, {
+                type: 'info',
+                title: 'AFB-SCANNUMARCH',
+                message: message,
+                buttons: ['OK']
+            });
+        }
+        else{
+            message = groupedScannedFiles.length;
+            var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
+            message = message.toString();
+            message = message + " " + piece
+            dialog.showMessageBoxSync(mainWindow, {
+                type: 'info',
+                title: 'AFB-SCANNUMARCH',
+                message: message,
+                buttons: ['OK']
+            });
+        }
        
+        
         event.sender.send('actionReply', groupedScannedFiles.reverse());
     }
     else{
@@ -273,12 +288,22 @@ ipcMain.on("loadScanFile", async (event, args) => {
                     }
                     console.log("countFiles = "+countFiles+", nbre = "+nbre)
                     if(countFiles === nbre) {
-                        console.log("countFiles = "+countFiles)
                         if (scanFiles.length !==0 ){
                             groupedScannedFiles.push(scanFiles)
                         }
-                       
+                      //  dialog.showMessageBox('AFB-SCANNUMARCH', groupedScannedFiles.length + groupedScannedFiles.length < 2 ? 'Pièce trouvé' : 'Pièces trouvées');
+                        console.log('message scanned: ',groupedScannedFiles.length);
+                        var message = groupedScannedFiles.length;
+                        var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
+                        message = message.toString();
+                        message = message + " " + piece
                         event.sender.send('actionReply', groupedScannedFiles.reverse());
+                        dialog.showMessageBoxSync(mainWindow, {
+                            type: 'info',
+                            title: 'AFB-SCANNUMARCH',
+                            message: message,
+                            buttons: ['OK']
+                        });
                     }
                     }).catch((err) => {
                     console.log("error: " + err);

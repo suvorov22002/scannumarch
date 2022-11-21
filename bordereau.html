@@ -142,7 +142,7 @@
         <div class="w-full flex justify-end m-1">
             <button
                 class="bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
-                type="button" 
+                type="button"  id="btnSplit"
                 onclick="onSplit();" [disabled] = "image_in" [hidden] = "instance"
             >
                 <i title="Decoupage" class="fa fa-cut" aria-hidden="true"></i>
@@ -150,7 +150,7 @@
             </button>
             <button
                 class="bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
-                type="button" 
+                type="button"  id="btnFusion"
                 onclick="sendToFusion();" [disabled] = "image_in" [hidden] = "instance"
             >
                 <i class="fa fa-clock-o" aria-hidden="true"></i>
@@ -159,7 +159,7 @@
             
             <button
                 class="bg-orange-500 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
-                type="button" 
+                type="button"  id="btnAcs"
                 onclick="sendRToAcs();" [disabled] = "image_in" [hidden] = "!instance" 
             >
            
