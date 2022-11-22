@@ -248,6 +248,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
                 console.log('instantTime ',instantTime);
                  
                 obj = {}
+                obj.foldernom = indexedDirs[d]
                 obj.filenom = ""
                 obj.enbase64 = ""
                 obj.state = false

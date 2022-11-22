@@ -803,14 +803,15 @@ function sendToFusion() {
               fs.writeFileSync(path.join(intFolderWorks, f.filenom.replace('tmp', 'work')), buff);
             }
           }
-          
-          deleteFile(path.join(dirScans, f.filenom.split('_')[2]))
+          var way = path.join(dirScans, f.foldernom, f.filenom.split('_')[2])
+          deleteFile(path.join(dirScans, f.foldernom, f.filenom.split('_')[2]))
+         
        })
 
        if (controlSize == fusionSize) {
           const elets =  $("div.block");
           if(elets) elets.remove();
-         
+
           if (globalResponse){
             for (let i = 0; i < globalResponse.length; i++) {
               $('#btn-'+i).remove();
@@ -832,6 +833,13 @@ function sendToFusion() {
           $("#age").val("");
           document.getElementById("date").value = "";
           $('body').removeClass('loading')
+
+          var fol;
+          indexedDirs = fs.readdirSync(dirScans);
+          for (obj in indexedDirs) {
+            fol = path.join(dirScans, indexedDirs[obj])
+            deleteFolder(fol)
+          }
        }
     });
 
