@@ -899,54 +899,7 @@ function loadingFiles() {
 }
 
 async function sendRToAlfresco() {
-  var jpgUrl;
-  var orig64;
-  var pdfName;
-  //this.afbcore.loading(true);
-
- 
-  for (var i = 0; i < globalResponse.length; i++) {
-      var infiles = globalResponse[i] 
-      //Create pdf
-      const pdfDoc = await PDFDocument.create();
-
-      for(var ii = 0; ii < infiles.length; ii++){
-        orig64 = infiles[ii].enbase64;
-        jpgUrl = 'data:image/jpg;base64,' +orig64;
-
-        const jpgImageBytes = Buffer.from(orig64, 'base64');
-
-        //Embed images bytes
-        const jpgImage = await pdfDoc.embedJpg(jpgImageBytes);
-
-        // Get the dimension of the image scaled down do 35% of its original size
-        const jpgDims = jpgImage.scale(0.35);
-
-        // Add a blank page to the document
-        var page = pdfDoc.addPage(PageSizes.A4);
-
-        // Draw the JPG image in the center of the page
-        page.drawImage(jpgImage, {
-          x: page.getWidth() / 2 - jpgDims.width /2,
-          y: page.getHeight() /2 - jpgDims.height /2,
-          width: jpgDims.width,  //575
-          height: jpgDims.height, //815
-        })
-
-        pdfName = infiles[ii].filenom;
-      }
-      // Serialize the PDFDocument to bytes 
-      const pdfBytes = await pdfDoc.save();
-      
-      var callback = (err) => {
-        if (err) throw err;
-        console.log('It\'s saved!');
-      }
-      // Uint8Array
-      const data = new Uint8Array(Buffer.from(pdfBytes));
-      fs.writeFile(path.join(indexedPath, 'pdf-lib_modification_example.pdf'), data, callback);
-
-  }
+  
 
 }
 

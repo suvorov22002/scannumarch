@@ -24,13 +24,18 @@
   
 function configFolders() {
   
+  var dirIns = 'C:\\numarch\\in';
   var dirScans = 'C:\\numarch\\scans';
   var dirIndexes = 'C:\\numarch\\indexes';
   var dirAlfreco = 'C:\\numarch\\alfresco';
   var dirWorks = 'C:\\numarch\\works';
 
   // Configure all directories
-
+  
+  /* Repertoire des dossiers pdf (images compilées) issus du scanner */
+  if (!fs.existsSync(dirIns)){
+    fs.mkdirSync(dirIns, { recursive: true });
+  }
   /* Repertoire des dossiers scannés en attente d'indexation */
   if (!fs.existsSync(dirScans)){
       fs.mkdirSync(dirScans, { recursive: true });

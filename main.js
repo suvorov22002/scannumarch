@@ -6,12 +6,13 @@ const fs = require('fs');
 const url = require('url');
 const path = require('path');
 
-//const ipc = require('electron').ipcMain;
 const { dialog } = require('electron');
 
 const jsdom = require('jsdom');
 const dom = new jsdom.JSDOM("");
-//const $ = require("jquery")(dom.window);
+
+const {getMimeType} = require('stream-mime-type')
+const { PDFDocument, PageSizes } = require('pdf-lib')
 
 var Jimp = require("jimp");
 var QrCode = require('qrcode-reader');
@@ -169,6 +170,10 @@ ipcMain.on("loadScanFile", async (event, args) => {
  */   
     // Scans works directory
 
+    // Extract jpg files from scanned document
+    await getImageFromPdf();
+
+
     scanFiles = [];
     indexedDir = fs.readdirSync(worksPath);
 
@@ -218,7 +223,103 @@ ipcMain.on("loadScanFile", async (event, args) => {
     console.log('scanned: ',groupedScannedFiles.length);
 
     scanFiles = [];
-    indexedDir = fs.readdirSync(directoryPath);
+    var indexedDirs = fs.readdirSync(directoryPath);
+    var chemin;
+    indexedDirs = indexedDirs.filter(f => fs.statSync(path.join(directoryPath,f)).isDirectory())
+    countFolders = indexedDirs.length;
+    nbreFolder = 0;
+    
+    for (var d in indexedDirs) {
+        nbreFolder++;
+        chemin = fs.statSync(path.join(directoryPath,indexedDirs[d]));
+        if (chemin.isDirectory()) {
+            console.log('Scan folder: ' + indexedDirs[d])
+            indexedDir = fs.readdirSync(path.join(directoryPath,indexedDirs[d]));
+            countFiles = indexedDir.length;
+            nbre = 0;
+            var timestamp;
+
+            for (var ind in indexedDir) {
+                console.log('Index Folder: ' ,indexedDir[ind]);
+                inFileName = indexedDir[ind];
+    
+                timestamp = new Date();
+                var instantTime = moment(timestamp).format(simpleFormat); 
+                console.log('instantTime ',instantTime);
+                 
+                obj = {}
+                obj.filenom = ""
+                obj.enbase64 = ""
+                obj.state = false
+                obj.data = "" //TODO: extract data from xml file
+                obj.filenom = 'tmp_' + instantTime + '_' + inFileName;
+                obj.enbase64 = await base64_encode(path.join(directoryPath, indexedDirs[d], inFileName));
+                
+                
+                await readQRCode(path.join(directoryPath, indexedDirs[d], inFileName))
+                        .then((message) => {
+                        
+                    nbre++;
+                    if (message.indexOf('AFB QRCODE NOT FOUND') !== -1) {
+                        console.log("qrcode = "+message);
+                        obj.state = false
+                        obj.data = ""
+                        scanFiles.push(obj);
+                    }
+                    else{
+                        console.log("qrcode = "+message);
+                        obj.state = true
+                        obj.data = extractInformation(message)
+                        scanFiles.push(obj);
+                        groupedScannedFiles.push(scanFiles)
+                        scanFiles = [];
+                    }
+                    console.log("countFiles = "+countFiles+", nbre = "+nbre)
+                    if(countFiles === nbre) {
+                        if (scanFiles.length !==0 ){
+                            groupedScannedFiles.push(scanFiles)
+                        }
+                        //  dialog.showMessageBox('AFB-SCANNUMARCH', groupedScannedFiles.length + groupedScannedFiles.length < 2 ? 'Pièce trouvé' : 'Pièces trouvées');
+                        console.log('message scanned: ',groupedScannedFiles.length);
+                    /*    var message = groupedScannedFiles.length;
+                        var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
+                        message = message.toString();
+                        message = message + " " + piece
+                        event.sender.send('actionReply', groupedScannedFiles.reverse());
+                        dialog.showMessageBoxSync(mainWindow, {
+                            type: 'info',
+                            title: 'AFB-SCANNUMARCH',
+                            message: message,
+                            buttons: ['OK']
+                        });
+                    */
+                    }
+                }).catch((err) => {
+                    console.log("error: " + err);
+                    obj.state = false
+                    obj.data = ""
+                    scanFiles.push(obj);
+                });
+            }
+            console.log("countFolders = "+countFolders+", nbreFolder = "+nbreFolder)
+            if(countFolders === nbreFolder) {
+                console.log('message scanned: ',groupedScannedFiles.length);
+                var message = groupedScannedFiles.length;
+                var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
+                message = message.toString();
+                message = message + " " + piece
+                event.sender.send('actionReply', groupedScannedFiles.reverse());
+                dialog.showMessageBoxSync(mainWindow, {
+                    type: 'info',
+                    title: 'AFB-SCANNUMARCH',
+                    message: message,
+                    buttons: ['OK']
+                });
+            }
+            
+        }
+    }
+   /* 
     countFiles = indexedDir.length;
     nbre = 0;
     var timestamp;
@@ -314,7 +415,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
         }
     }
 
-    
+  */  
     
     
 /*
@@ -510,3 +611,111 @@ const readQRCode2 = async (filename) => {
     console.log(JSON.stringify(trx))
     return trx;
  }
+
+ async function getImageFromPdf() {
+    
+    var inputDir = path.join('C:\\numarch\\', 'in') 
+    // Parcours du dossier pour rechercher les pdf scannés
+    var indexedDir = fs.readdirSync(inputDir);
+    console.log(indexedDir.length + ' dossier trouvé')
+
+    var file;
+    var ext;
+    var basename
+    for (var ind = 0; ind < indexedDir.length; ind++) {
+        file = indexedDir[ind];
+
+        //Verifie si l'extension est .pdf
+        ext = path.extname(path.join(inputDir, file));
+        basename = path.basename( file, ext )
+        if (ext === '.pdf') {
+           
+            const existingPdfBytes = await new Promise((resolve, reject) => {
+                fs.readFile(path.join(inputDir, file), (err, result) => {
+                  if (err) {
+                    reject(err)
+                  }
+                  if (!err) {
+                    resolve(result)
+                 }
+               })
+              })
+
+              const pdfDoc = await PDFDocument.load(existingPdfBytes)
+              const pages = pdfDoc.getPages()
+        //      console.log(file+' Page: '+pages[0].doc.context.indirectObjects.get("R"))
+              const result = []
+             
+              pages[0].doc.context.indirectObjects.forEach(el => {
+                 if (el.hasOwnProperty('contents')) result.push(el.contents)
+               })
+              const mime = await Promise.all(result.map(async (el) => {
+                 return new Promise(async (resolve) => {
+                   const res = await getMimeType(el)
+                   if (res) {
+                     resolve(res)
+                   }
+                 })
+               }));
+               var num = 0
+               await Promise.all(mime.map(async (el, i) => {
+                  // console.log('el.mime: '+el.mime+' counter: '+basename)
+                   if (el.mime === 'image/jpeg') {
+                     return new Promise(async (resolve) => {
+                       const res = await writeJpgFile(result[i], `image-${num++}`, basename);
+                      resolve(res)
+                     })
+                   }
+                 })
+               )
+
+
+               
+        }
+    }
+
+    indexedDir.forEach(d => deleteFile(path.join(inputDir, d)));
+    
+ }
+
+ function deleteFolder(dir) {
+    if (fs.existsSync(dir)) { 
+      try {
+        fs.rmdirSync(dir, { recursive: true });
+        console.log(`${dir} is deleted!`);
+      } catch (err) {
+          console.error(`Error while deleting ${dir}.`);
+      }
+    }
+  }
+
+  function deleteFile(directoryPAth) {
+    if (fs.existsSync(directoryPAth)) { 
+      fs.unlink(directoryPAth, (err) => {
+        if (err) {
+            throw err;
+        }
+        console.log("Delete File successfully.");
+      });
+    }
+  }
+ //  getImageFromPdf();
+  
+   function writeJpgFile(tabFile, filename,ext) {
+      var outputDir = path.join('C:\\numarch\\', 'scans', ext);
+
+      if (!fs.existsSync(outputDir)){
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+
+      var callback = (err) => {
+        if (err){
+          console.log('Error: '+err);
+         // throw err;
+        } 
+       // console.log('It\'s saved!');
+      }
+        // Uint8Array
+        const data = tabFile; //new Uint8Array(Buffer.from(pdfBytes));
+        fs.writeFile(path.join(outputDir, filename+'.jpg'), data, callback);
+   }
