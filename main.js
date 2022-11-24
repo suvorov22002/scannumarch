@@ -1,4 +1,4 @@
-const {app, Menu, remote, BrowserWindow, ipcMain, ipc} = require('electron');
+const {app, Menu, remote, BrowserWindow, ipcMain} = require('electron');
 const fs = require('fs');
 //const app = electron.app;
 //const remote = electron.remote
@@ -229,6 +229,21 @@ ipcMain.on("loadScanFile", async (event, args) => {
     countFolders = indexedDirs.length;
     nbreFolder = 0;
     
+    if (countFolders === 0) {
+        var message = groupedScannedFiles.length;
+        var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
+        message = message.toString();
+        message = message + " " + piece
+        event.sender.send('actionReply', groupedScannedFiles.reverse());
+
+        dialog.showMessageBoxSync(mainWindow, {
+            type: 'info',
+            title: 'AFB-SCANNUMARCH',
+            message: message,
+            buttons: ['OK']
+        });
+    }
+
     for (var d in indexedDirs) {
         nbreFolder++;
         chemin = fs.statSync(path.join(directoryPath,indexedDirs[d]));
@@ -309,7 +324,9 @@ ipcMain.on("loadScanFile", async (event, args) => {
                 var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
                 message = message.toString();
                 message = message + " " + piece
+
                 event.sender.send('actionReply', groupedScannedFiles.reverse());
+
                 dialog.showMessageBoxSync(mainWindow, {
                     type: 'info',
                     title: 'AFB-SCANNUMARCH',
@@ -497,6 +514,12 @@ ipcMain.on("validData", async (event, args) => {
     }
    
     event.sender.send('validDataReply', 'groupedScannedFiles');
+});
+
+ipcMain.on("toAlfresco", async (event, args) => {
+    console.log('args: '+args)
+    var nbreEnvoye = readAlfrescoFolder()
+    event.sender.send('alfrescoReply', 'Response from Alfresco: ' + nbreEnvoye);
 });
 
 function processFile() {
@@ -719,4 +742,57 @@ const readQRCode2 = async (filename) => {
         // Uint8Array
         const data = tabFile; //new Uint8Array(Buffer.from(pdfBytes));
         fs.writeFile(path.join(outputDir, filename+'.jpg'), data, callback);
+   }
+
+   function readAlfrescoFolder() {
+
+        var indexedPath = path.join('C:\\numarch\\', 'alfresco');
+        indexedDir = fs.readdirSync(indexedPath);
+        console.log(indexedDir.length)
+        return indexedDir.length;
+        /*
+        for (var ind = 0; ind < indexedDir.length; ind++) {
+           
+            inFileName = indexedDir[ind];
+            inFileNames = fs.readdirSync(path.join(indexedPath, inFileName));
+            countFiles = inFileNames.length - 1;
+            nbre = 0;
+            scanFiles = [];
+            loadData = ""
+
+            
+            try{
+                content = fs.readFileSync(path.join(indexedPath, inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
+                loadData = JSON.parse(content); //now it an object
+            } catch (err) {
+                console.error();
+            }
+        
+        // console.log(JSON.stringify(inFileNames));
+            for (f in inFileNames) {
+                
+                if (inFileNames[f] === 'data.json') continue;
+                
+                obj = {}
+                obj.filenom = ""
+                obj.enbase64 = ""
+                obj.state = false
+                obj.data = "" //TODO: extract data from xml file
+                obj.filenom = inFileNames[f];
+                obj.enbase64 = await base64_encode(path.join(indexedPath, inFileName, inFileNames[f]));
+                nbre++;
+                if (countFiles == nbre) {
+                    obj.state = true;
+                    obj.data = loadData;
+                    scanFiles.push(obj);
+                    groupedScannedFiles.push(scanFiles)
+                }
+                else{
+                    scanFiles.push(obj);
+                }
+
+            }
+        }
+
+        */
    }

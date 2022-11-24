@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { PDFDocument, PageSizes } = require('pdf-lib')
+const ipc = require('electron').ipcRenderer;
 
 let globalResponse; // handle array of object's  (name and base64)
 let map = new Map();
@@ -251,7 +252,7 @@ function onUpdate(btn) {
   var etat = fileSelected[fileSelected.length-1].state
   //console.log("fileSelected: "+JSON.stringify(fileSelected[fileSelected.length-1].state))
 
-  if (validDataUnique(fileSelected[fileSelected.length-1].data) && !state){
+  if (validDataUnique(fileSelected[fileSelected.length-1].data) && !etat){
       //console.log('je modifie')
       document.getElementById("btn-"+index).style.borderColor = "green";
       charge = charge - 1;
@@ -278,8 +279,6 @@ function onSuppDoc(btn){
   var id = btn.id
   console.log("globalResponse: "+id)
 }
-
-const ipc = require('electron').ipcRenderer
 
 const asyncMsgBtn = document.getElementById('fileselect')
 
@@ -767,7 +766,7 @@ function sendToFusion() {
 
     //   console.log(typeof file[file.length-1].data + ' - ' + controlTypeObject)
        
-       if (intermState) sendRToAcs(file, intFolderAlfreco);
+       if (intermState) prepareAlfrescoFiles(file, intFolderAlfreco);
 
        file.forEach(f => {
           
@@ -911,7 +910,7 @@ async function sendRToAlfresco() {
 
 }
 
-async function sendRToAcs(indexedDir, intFolderAlfreco) {
+async function prepareAlfrescoFiles(indexedDir, intFolderAlfreco) {
   var jpgUrl;
   var orig64;
   var dirAlfresco = 'C:\\numarch\\alfresco';
@@ -921,7 +920,7 @@ async function sendRToAcs(indexedDir, intFolderAlfreco) {
   var newName = indexedDir[indexedDir.length - 1].filenom
   var lastDot = newName.lastIndexOf('.');
   var composeName =  newName.substring(0, lastDot).split('_')
-  console.log(JSON.stringify(composeName))
+  //console.log(JSON.stringify(composeName))
   newName = composeName[1] + '_' + composeName[2]
   var controlTypeObject = (typeof indexedDir[indexedDir.length - 1].data == 'object' && indexedDir[indexedDir.length - 1].data !== null);
   
@@ -977,5 +976,13 @@ async function sendRToAcs(indexedDir, intFolderAlfreco) {
         const data = new Uint8Array(Buffer.from(pdfBytes));
         fs.writeFile(path.join(intFolderAlfreco, newName + '.pdf'), data, callback);
 
+}
+
+function sendRToAcs() {
+
+  ipc.send('toAlfresco', "Send file to alfresco");
+  ipc.once('alfrescoReply', function(event, response){
+      console.log(response)
+  });
 }
 

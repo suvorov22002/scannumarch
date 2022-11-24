@@ -1,15 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+/*@import '~@angular/material/prebuilt-themes/indigo-pink.css';*/
 /*@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';*/
 /*@import '~@fortawesome/fontawesome-free/css/all.min.css';*/
-@import '~bootstrap/dist/css/bootstrap.min.css';
+/*@import '~bootstrap/dist/css/bootstrap.min.css';
 @import '~font-awesome/css/font-awesome.css';
 @import '~primeng/resources/themes/saga-blue/theme.css';
 @import '~primeng/resources/primeng.min.css';
 @import '~primeicons/primeicons.css';
 @import '~ngx-toastr/toastr';
-
+*/
 html{
   min-height:100%;/* make sure it is at least as tall as the viewport */
   position:relative;
