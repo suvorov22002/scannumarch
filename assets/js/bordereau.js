@@ -773,17 +773,21 @@ function sendToFusion() {
           if((intermState || f.state) && (fileNom.startsWith('tmp') || fileNom.startsWith('work'))){
             if (!fs.existsSync(intFolder)){
               fs.mkdirSync(intFolder, { recursive: true });
-              if(controlTypeObject) fs.writeFileSync(path.join(intFolder, 'data.json'), jsonVariable);
+              if(controlTypeObject) {
+                writeToFile (path.join(intFolder, 'data.json'), jsonVariable);
+                //fs.writeFileSync(path.join(intFolder, 'data.json'), jsonVariable);
+              } 
             }
             buff = Buffer.from(f.enbase64, 'base64');
             if (fileNom.startsWith('work')) {
-               fs.writeFileSync(path.join(intFolder, f.filenom.replace('work', 'index')), buff);
-               //deleteFile(path.join(intFolderWorks, f.filenom))
+              // fs.writeFileSync(path.join(intFolder, f.filenom.replace('work', 'index')), buff);
+               writeToFile (path.join(intFolder, f.filenom.replace('work', 'index')), buff)
                deleteFolder(intFolderWorks)
               // console.log('write file work: '+f.filenom.replace('tmp', 'index'))
             }
             else{
-              fs.writeFileSync(path.join(intFolder, f.filenom.replace('tmp', 'index')), buff);
+              //fs.writeFileSync(path.join(intFolder, f.filenom.replace('tmp', 'index')), buff);
+              writeToFile (path.join(intFolder, f.filenom.replace('tmp', 'index')), buff)
               //console.log('write file tmp: '+f.filenom.replace('tmp', 'index'))
             }
           }
@@ -794,12 +798,14 @@ function sendToFusion() {
             }
             buff = Buffer.from(f.enbase64, 'base64');
             if (f.filenom.indexOf('index') !== -1){
-              fs.writeFileSync(path.join(intFolderWorks, f.filenom.replace('index', 'work')), buff);
+             // fs.writeFileSync(path.join(intFolderWorks, f.filenom.replace('index', 'work')), buff);
+              writeToFile (path.join(intFolderWorks, f.filenom.replace('index', 'work')), buff)
               //deleteFile(path.join(intFolder, f.filenom))
               deleteFolder(intFolder)
             }
             else{
-              fs.writeFileSync(path.join(intFolderWorks, f.filenom.replace('tmp', 'work')), buff);
+              //fs.writeFileSync(path.join(intFolderWorks, f.filenom.replace('tmp', 'work')), buff);
+              writeToFile (path.join(intFolderWorks, f.filenom.replace('tmp', 'work')), buff)
             }
           }
           var way = path.join(dirScans, f.foldernom, f.filenom.split('_')[2])
@@ -871,6 +877,14 @@ function deleteFolder(dir) {
     } catch (err) {
         console.error(`Error while deleting ${dir}.`);
     }
+  }
+}
+
+function writeToFile (chemin, buff) {
+  try {
+    fs.writeFileSync(chemin, buff);
+  } catch (err) {
+      console.error(`Error while creating file ${chemin}.`);
   }
 }
 

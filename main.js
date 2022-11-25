@@ -5,6 +5,7 @@ const fs = require('fs');
 //const BrowserWindow = electron.BrowserWindow
 const url = require('url');
 const path = require('path');
+const net = require('electron').net;
 
 const { dialog } = require('electron');
 
@@ -749,50 +750,49 @@ const readQRCode2 = async (filename) => {
         var indexedPath = path.join('C:\\numarch\\', 'alfresco');
         indexedDir = fs.readdirSync(indexedPath);
         console.log(indexedDir.length)
+
+        indexedDir.forEach(dir => {
+            console.log(dir)
+        });
+
+        requestGet();
+
+
+
         return indexedDir.length;
-        /*
-        for (var ind = 0; ind < indexedDir.length; ind++) {
-           
-            inFileName = indexedDir[ind];
-            inFileNames = fs.readdirSync(path.join(indexedPath, inFileName));
-            countFiles = inFileNames.length - 1;
-            nbre = 0;
-            scanFiles = [];
-            loadData = ""
-
-            
-            try{
-                content = fs.readFileSync(path.join(indexedPath, inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
-                loadData = JSON.parse(content); //now it an object
-            } catch (err) {
-                console.error();
-            }
-        
-        // console.log(JSON.stringify(inFileNames));
-            for (f in inFileNames) {
-                
-                if (inFileNames[f] === 'data.json') continue;
-                
-                obj = {}
-                obj.filenom = ""
-                obj.enbase64 = ""
-                obj.state = false
-                obj.data = "" //TODO: extract data from xml file
-                obj.filenom = inFileNames[f];
-                obj.enbase64 = await base64_encode(path.join(indexedPath, inFileName, inFileNames[f]));
-                nbre++;
-                if (countFiles == nbre) {
-                    obj.state = true;
-                    obj.data = loadData;
-                    scanFiles.push(obj);
-                    groupedScannedFiles.push(scanFiles)
-                }
-                else{
-                    scanFiles.push(obj);
-                }
-
-            }
-        }
-
-        */
    }
+
+function requestGet() {
+
+        const request = net.request({
+            method: 'GET',
+            protocol: 'http:',
+            hostname: '127.0.0.1',
+            port: 8080,
+            path: '/rest/api/v1/files/tmp_2211231853389690_image-64',
+            redirect: 'follow'
+        });
+        request.on('response', (response) => {
+            console.log(`STATUS: ${response.statusCode}`);
+            console.log(`HEADERS: ${JSON.stringify(response.headers)}`);
+    
+            response.on('data', (chunk) => {
+                console.log(`BODY: ${chunk}`)
+            });
+        });
+        request.on('finish', () => {
+            console.log('Request is Finished')
+        });
+        request.on('abort', () => {
+            console.log('Request is Aborted')
+        });
+        request.on('error', (error) => {
+            console.log(`ERROR: ${JSON.stringify(error)}`)
+        });
+        request.on('close', (error) => {
+            console.log('Last Transaction has occurred')
+        });
+        request.setHeader('Content-Type', 'application/json');
+        request.end();
+   
+}
