@@ -93,7 +93,7 @@ let filteredTypes = [
         document.getElementById("btnSplit").style.visibility = "hidden"
     }
     else{
-      document.getElementById("btnAcs").style.visibility = "visible"
+     // document.getElementById("btnAcs").style.visibility = "visible"
       document.getElementById("btnFusion").style.visibility = "visible"
       document.getElementById("btnSplit").style.visibility = "visible"
     }
@@ -317,9 +317,12 @@ asyncMsgBtn.addEventListener('click', () => {
     
 
     ipc.once('actionReply', async function(event, response){
-       
+       //console.log("Response: "+response)
+      
        //clearInterval(setLoad);
        $('body').removeClass('loading')
+       if (response === 'AFB-SERVICE-ERROR') return;
+
        globalResponse = []
        if (response.length === 0) {
          // alert('Aucun document à numeriser.');

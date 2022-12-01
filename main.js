@@ -101,7 +101,7 @@ app.on('window-all-closed', function () {
 
 ipcMain.on("loadScanFile", async (event, args) => {
     
-    console.log(args+' -- Recherche des fichiers à indexer.');
+    //console.log(args+' -- Recherche des fichiers à indexer.');
     var scanFiles = [];
     var groupedScannedFiles = []
     var countFiles = 0;
@@ -113,7 +113,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
 
     // Scans folders
     var indexedDir;
-    //console.log(JSON.stringify(indexedDir));
+    ////console.log(JSON.stringify(indexedDir));
     var inFileName;
     var inFileNames;
     var str64;
@@ -122,11 +122,12 @@ ipcMain.on("loadScanFile", async (event, args) => {
     var countFiles;
     var loadData;
     var content;
+    
 /*
     indexedDir = fs.readdirSync(indexedPath);
 
     for (var ind = 0; ind < indexedDir.length; ind++) {
-        //console.log('Index Folder: ' ,indexedDir[ind]);
+        ////console.log('Index Folder: ' ,indexedDir[ind]);
         inFileName = indexedDir[ind];
         inFileNames = fs.readdirSync(path.join(indexedPath, inFileName));
         countFiles = inFileNames.length - 1;
@@ -142,7 +143,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
              console.error();
         }
       
-       // console.log(JSON.stringify(inFileNames));
+       // //console.log(JSON.stringify(inFileNames));
         for (f in inFileNames) {
             
             if (inFileNames[f] === 'data.json') continue;
@@ -167,19 +168,19 @@ ipcMain.on("loadScanFile", async (event, args) => {
 
         }
     }
-    console.log('scanned: ',groupedScannedFiles.length);
+    //console.log('scanned: ',groupedScannedFiles.length);
  */   
     // Scans works directory
 
     // Extract jpg files from scanned document
-    await getImageFromPdf();
+    await getImageFromPdf(event);
 
-
+/*
     scanFiles = [];
     indexedDir = fs.readdirSync(worksPath);
 
     for (var ind = 0; ind < indexedDir.length; ind++) {
-        console.log('Index Folder: ' ,indexedDir[ind]);
+        //console.log('Index Folder: ' ,indexedDir[ind]);
         inFileName = indexedDir[ind];
         inFileNames = fs.readdirSync(path.join(worksPath, inFileName));
         countFiles = inFileNames.length - 1;
@@ -189,7 +190,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
        /// if (fs.existsSync(dir)) { 
         try{
             content = fs.readFileSync(path.join(worksPath, inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
-            console.log(content);
+            //console.log(content);
             loadData = JSON.parse(content); //now it an object
         } catch (err) {
              countFiles++;
@@ -197,7 +198,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
         }
        
 
-       // console.log(JSON.stringify(inFileNames));
+       // //console.log(JSON.stringify(inFileNames));
         for (f in inFileNames) {
 
             if (inFileNames[f] === 'data.json') continue;
@@ -221,7 +222,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
             }
         }
     }
-    console.log('scanned: ',groupedScannedFiles.length);
+    //console.log('scanned: ',groupedScannedFiles.length);
 
     scanFiles = [];
     var indexedDirs = fs.readdirSync(directoryPath);
@@ -249,19 +250,19 @@ ipcMain.on("loadScanFile", async (event, args) => {
         nbreFolder++;
         chemin = fs.statSync(path.join(directoryPath,indexedDirs[d]));
         if (chemin.isDirectory()) {
-            console.log('Scan folder: ' + indexedDirs[d])
+            //console.log('Scan folder: ' + indexedDirs[d])
             indexedDir = fs.readdirSync(path.join(directoryPath,indexedDirs[d]));
             countFiles = indexedDir.length;
             nbre = 0;
             var timestamp;
 
             for (var ind in indexedDir) {
-                console.log('Index Folder: ' ,indexedDir[ind]);
+                //console.log('Index Folder: ' ,indexedDir[ind]);
                 inFileName = indexedDir[ind];
     
                 timestamp = new Date();
                 var instantTime = moment(timestamp).format(simpleFormat); 
-                console.log('instantTime ',instantTime);
+                //console.log('instantTime ',instantTime);
                  
                 obj = {}
                 obj.foldernom = indexedDirs[d]
@@ -278,49 +279,38 @@ ipcMain.on("loadScanFile", async (event, args) => {
                         
                     nbre++;
                     if (message.indexOf('AFB QRCODE NOT FOUND') !== -1) {
-                        console.log("qrcode = "+message);
+                        //console.log("qrcode = "+message);
                         obj.state = false
                         obj.data = ""
                         scanFiles.push(obj);
                     }
                     else{
-                        console.log("qrcode = "+message);
+                        //console.log("qrcode = "+message);
                         obj.state = true
                         obj.data = extractInformation(message)
                         scanFiles.push(obj);
                         groupedScannedFiles.push(scanFiles)
                         scanFiles = [];
                     }
-                    console.log("countFiles = "+countFiles+", nbre = "+nbre)
+                    //console.log("countFiles = "+countFiles+", nbre = "+nbre)
                     if(countFiles === nbre) {
                         if (scanFiles.length !==0 ){
                             groupedScannedFiles.push(scanFiles)
                         }
                         //  dialog.showMessageBox('AFB-SCANNUMARCH', groupedScannedFiles.length + groupedScannedFiles.length < 2 ? 'Pièce trouvé' : 'Pièces trouvées');
-                        console.log('message scanned: ',groupedScannedFiles.length);
-                    /*    var message = groupedScannedFiles.length;
-                        var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
-                        message = message.toString();
-                        message = message + " " + piece
-                        event.sender.send('actionReply', groupedScannedFiles.reverse());
-                        dialog.showMessageBoxSync(mainWindow, {
-                            type: 'info',
-                            title: 'AFB-SCANNUMARCH',
-                            message: message,
-                            buttons: ['OK']
-                        });
-                    */
+                        //console.log('message scanned: ',groupedScannedFiles.length);
+                    
                     }
                 }).catch((err) => {
-                    console.log("error: " + err);
+                    //console.log("error: " + err);
                     obj.state = false
                     obj.data = ""
                     scanFiles.push(obj);
                 });
             }
-            console.log("countFolders = "+countFolders+", nbreFolder = "+nbreFolder)
+            //console.log("countFolders = "+countFolders+", nbreFolder = "+nbreFolder)
             if(countFolders === nbreFolder) {
-                console.log('message scanned: ',groupedScannedFiles.length);
+                //console.log('message scanned: ',groupedScannedFiles.length);
                 var message = groupedScannedFiles.length;
                 var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
                 message = message.toString();
@@ -338,6 +328,8 @@ ipcMain.on("loadScanFile", async (event, args) => {
             
         }
     }
+*/
+
    /* 
     countFiles = indexedDir.length;
     nbre = 0;
@@ -372,12 +364,12 @@ ipcMain.on("loadScanFile", async (event, args) => {
     }
     else{
         for (var ind in indexedDir) {
-            console.log('Index Folder: ' ,indexedDir[ind]);
+            //console.log('Index Folder: ' ,indexedDir[ind]);
             inFileName = indexedDir[ind];
 
             timestamp = new Date();
             var instantTime = moment(timestamp).format(simpleFormat); 
-            console.log('instantTime ',instantTime);
+            //console.log('instantTime ',instantTime);
              
             obj = {}
             obj.filenom = ""
@@ -393,26 +385,26 @@ ipcMain.on("loadScanFile", async (event, args) => {
                     
                     nbre++;
                     if (message.indexOf('AFB QRCODE NOT FOUND') !== -1) {
-                        console.log("qrcode = "+message);
+                        //console.log("qrcode = "+message);
                         obj.state = false
                         obj.data = ""
                         scanFiles.push(obj);
                     }
                     else{
-                        console.log("qrcode = "+message);
+                        //console.log("qrcode = "+message);
                         obj.state = true
                         obj.data = extractInformation(message)
                         scanFiles.push(obj);
                         groupedScannedFiles.push(scanFiles)
                         scanFiles = [];
                     }
-                    console.log("countFiles = "+countFiles+", nbre = "+nbre)
+                    //console.log("countFiles = "+countFiles+", nbre = "+nbre)
                     if(countFiles === nbre) {
                         if (scanFiles.length !==0 ){
                             groupedScannedFiles.push(scanFiles)
                         }
                       //  dialog.showMessageBox('AFB-SCANNUMARCH', groupedScannedFiles.length + groupedScannedFiles.length < 2 ? 'Pièce trouvé' : 'Pièces trouvées');
-                        console.log('message scanned: ',groupedScannedFiles.length);
+                        //console.log('message scanned: ',groupedScannedFiles.length);
                         var message = groupedScannedFiles.length;
                         var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
                         message = message.toString();
@@ -426,7 +418,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
                         });
                     }
                     }).catch((err) => {
-                    console.log("error: " + err);
+                    //console.log("error: " + err);
                     obj.state = false
                     obj.data = ""
                     scanFiles.push(obj);
@@ -442,7 +434,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
      fs.readdir(directoryPath, async function (err, files) {
         //handling error
         if (err) {
-            return console.log('Unable to scan directory: ' + err);
+            return //console.log('Unable to scan directory: ' + err);
         } 
 
        numberFiles = numberFiles + files.length
@@ -458,7 +450,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
             obj.enbase64 = ""
             obj.state = false
             obj.data = ""
-        //    console.log(file); 
+        //    //console.log(file); 
             obj.filenom = file
             obj.enbase64 = await base64_encode(path.join(directoryPath, file))
         //   obj.enbase64 = ""
@@ -468,13 +460,13 @@ ipcMain.on("loadScanFile", async (event, args) => {
                     
                     countFiles++;
                     if (message.indexOf('AFB QRCODE NOT FOUND') !== -1) {
-                        console.log("qrcode = "+message);
+                        //console.log("qrcode = "+message);
                         obj.state = false
                         obj.data = ""
                         scanFiles.push(obj);
                     }
                     else{
-                        console.log("qrcode = "+message);
+                        //console.log("qrcode = "+message);
                         obj.state = true
                         obj.data = extractInformation(message)
                         scanFiles.push(obj);
@@ -483,7 +475,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
                     }
                 
                     if(countFiles === numberFiles) {
-                        console.log("countFiles = "+countFiles)
+                        //console.log("countFiles = "+countFiles)
                         if (scanFiles.length !==0 ){
                             groupedScannedFiles.push(scanFiles)
                         }
@@ -491,7 +483,7 @@ ipcMain.on("loadScanFile", async (event, args) => {
                        
                     }
                   }).catch((err) => {
-                    console.log("error: " + err);
+                    //console.log("error: " + err);
                     obj.state = false
                     obj.data = ""
                     scanFiles.push(obj);
@@ -502,14 +494,14 @@ ipcMain.on("loadScanFile", async (event, args) => {
     });
 
     */
-    console.log('scanned: ',groupedScannedFiles.length);
+    ////console.log('scanned: ',groupedScannedFiles.length);
       // Send result back to renderer process
       //mainWindow.webContents.send("fromMain", responseObj);
   
 });
 
 ipcMain.on("validData", async (event, args) => {
-    console.log('args: '+args)
+    //console.log('args: '+args)
     if(!args){
         dialog.showErrorBox('AFB-SCANNUMARCH', 'Veuillez renseigner les propriétés correctes.');
     }
@@ -518,41 +510,10 @@ ipcMain.on("validData", async (event, args) => {
 });
 
 ipcMain.on("toAlfresco", async (event, args) => {
-    console.log('args: '+args)
+    //console.log('args: '+args)
     var nbreEnvoye = readAlfrescoFolder()
     event.sender.send('alfrescoReply', 'Response from Alfresco: ' + nbreEnvoye);
 });
-
-function processFile() {
-    
-    //joining path of directory 
-    const directoryPath = path.join('C:\\numarch\\', 'scans');
-
-    //passsing directoryPath and callback function
-    fs.readdir(directoryPath, async function (err, files) {
-        //handling error
-        if (err) {
-            return console.log('Unable to scan directory: ' + err);
-        } 
-  
-        var blob = files[0]
-        const base64String = await base64_encode(path.join(directoryPath, blob))
-        console.log(base64String)
-        return base64String;
-        //listing all files using forEach
-       files.forEach(async function (file) {
-            // Do whatever you want to do with the file
-            console.log(file); 
-  
-            //const fs = require('fs').promises;
-            //const contents = await fs.readFile(path.join(__dirname, 'img/'+file), {encoding: 'base64'});
-           // const contents = base64_encode(path.join(__dirname, 'img/'+file));
-            //console.log('base64String: ' + contents);
-            
-        });
-    
-    });
-  }
 
   // function to encode file data to base64 encoded string
 function base64_encode(file) {
@@ -569,7 +530,7 @@ function base64_decode(base64str, file) {
     var bitmap = new Buffer(base64str, 'base64');
     // write buffer to file
     fs.writeFileSync(file, bitmap);
-    console.log('******** File created from base64 encoded string ********');
+    //console.log('******** File created from base64 encoded string ********');
 }
 
 function createGif() {
@@ -618,7 +579,7 @@ const readQRCode2 = async (filename) => {
     }
   }
  /* readQRCode2('./assets/img/numarch.jpg').then((message) => {
-    console.log("qrcode = "+message);
+    //console.log("qrcode = "+message);
     }).catch(console.log);
   readQRCode2('./assets/img/image-002.jpg').then(console.log).catch(console.log);
 */
@@ -633,20 +594,21 @@ const readQRCode2 = async (filename) => {
     trx.setMon = parseInt(message.substring(36, 50));
     trx.setType = message.substring(50);
 
-    console.log(JSON.stringify(trx))
+    //console.log(JSON.stringify(trx))
     return trx;
  }
 
- async function getImageFromPdf() {
-    
-    var inputDir = path.join('C:\\numarch\\', 'in') 
+ async function getImageFromPdf(event) {
+   
+    var inputDir = path.join('C:\\numarch\\', 'in');
     // Parcours du dossier pour rechercher les pdf scannés
     var indexedDir = fs.readdirSync(inputDir);
-    console.log(indexedDir.length + ' dossier trouvé')
+    //console.log(indexedDir.length + ' dossier trouvé')
 
     var file;
     var ext;
     var basename
+    /*
     for (var ind = 0; ind < indexedDir.length; ind++) {
         file = indexedDir[ind];
 
@@ -668,7 +630,7 @@ const readQRCode2 = async (filename) => {
 
               const pdfDoc = await PDFDocument.load(existingPdfBytes)
               const pages = pdfDoc.getPages()
-        //      console.log(file+' Page: '+pages[0].doc.context.indirectObjects.get("R"))
+        //      //console.log(file+' Page: '+pages[0].doc.context.indirectObjects.get("R"))
               const result = []
              
               pages[0].doc.context.indirectObjects.forEach(el => {
@@ -684,7 +646,7 @@ const readQRCode2 = async (filename) => {
                }));
                var num = 0
                await Promise.all(mime.map(async (el, i) => {
-                  // console.log('el.mime: '+el.mime+' counter: '+basename)
+                  // //console.log('el.mime: '+el.mime+' counter: '+basename)
                    if (el.mime === 'image/jpeg') {
                      return new Promise(async (resolve) => {
                        const res = await writeJpgFile(result[i], `image-${num++}`, basename);
@@ -698,8 +660,9 @@ const readQRCode2 = async (filename) => {
                
         }
     }
-
-    indexedDir.forEach(d => deleteFile(path.join(inputDir, d)));
+    */
+    await request2(event);
+    //indexedDir.forEach(d => deleteFile(path.join(inputDir, d)));
     
  }
 
@@ -707,7 +670,7 @@ const readQRCode2 = async (filename) => {
     if (fs.existsSync(dir)) { 
       try {
         fs.rmdirSync(dir, { recursive: true });
-        console.log(`${dir} is deleted!`);
+        //console.log(`${dir} is deleted!`);
       } catch (err) {
           console.error(`Error while deleting ${dir}.`);
       }
@@ -720,7 +683,7 @@ const readQRCode2 = async (filename) => {
         if (err) {
             throw err;
         }
-        console.log("Delete File successfully.");
+        //console.log("Delete File successfully.");
       });
     }
   }
@@ -735,10 +698,10 @@ const readQRCode2 = async (filename) => {
 
       var callback = (err) => {
         if (err){
-          console.log('Error: '+err);
+          //console.log('Error: '+err);
          // throw err;
         } 
-       // console.log('It\'s saved!');
+       // //console.log('It\'s saved!');
       }
         // Uint8Array
         const data = tabFile; //new Uint8Array(Buffer.from(pdfBytes));
@@ -749,10 +712,10 @@ const readQRCode2 = async (filename) => {
 
         var indexedPath = path.join('C:\\numarch\\', 'alfresco');
         indexedDir = fs.readdirSync(indexedPath);
-        console.log(indexedDir.length)
+        //console.log(indexedDir.length)
 
         indexedDir.forEach(dir => {
-            console.log(dir)
+            //console.log(dir)
         });
 
         requestGet();
@@ -773,26 +736,448 @@ function requestGet() {
             redirect: 'follow'
         });
         request.on('response', (response) => {
-            console.log(`STATUS: ${response.statusCode}`);
-            console.log(`HEADERS: ${JSON.stringify(response.headers)}`);
+            //console.log(`STATUS: ${response.statusCode}`);
+            //console.log(`HEADERS: ${JSON.stringify(response.headers)}`);
     
             response.on('data', (chunk) => {
-                console.log(`BODY: ${chunk}`)
+                //console.log(`BODY: ${chunk}`)
             });
         });
         request.on('finish', () => {
-            console.log('Request is Finished')
+            //console.log('Request is Finished')
         });
         request.on('abort', () => {
-            console.log('Request is Aborted')
+            //console.log('Request is Aborted')
         });
         request.on('error', (error) => {
-            console.log(`ERROR: ${JSON.stringify(error)}`)
+            //console.log(`ERROR: ${JSON.stringify(error)}`)
         });
         request.on('close', (error) => {
-            console.log('Last Transaction has occurred')
+            //console.log('Last Transaction has occurred')
         });
         request.setHeader('Content-Type', 'application/json');
         request.end();
    
 }
+
+async function request2(event) {
+   //console.log("..... REQUEST ......")
+    var endpoint = "http://127.0.0.1:8989/rest/api/v1/files/images";
+    const request = net.request(endpoint);
+
+    request.on('response', (response) => {
+        console.log(`STATUS: ${response.statusCode}`);
+
+        response.on('end', () => {
+            console.log('No more data in response.');
+            var inputDir = path.join('C:\\numarch\\', 'in') 
+            var indexedDir = fs.readdirSync(inputDir);
+            indexedDir.forEach(d => deleteFile(path.join(inputDir, d)));
+            //event.sender.send('actionReply', "groupedScannedFiles.reverse()");
+            processFile2(event);
+        });
+
+        response.on('data', (chunk) => {
+            console.log(`BODY: ${chunk}`);
+        });
+
+
+    });
+
+    request.on('finish', () => {
+        console.log('Request is Finished')
+    });
+    request.on('abort', () => {
+        console.log('Request is Aborted')
+    });
+    request.on('error', (error) => {
+        //console.log(`ERROR: ${JSON.stringify(error)}`)
+        dialog.showErrorBox('AFB-SCANNUMARCH', 'SERVICE INDISPONIBLE.');
+        event.sender.send('actionReply', "AFB-SERVICE-ERROR");
+    });
+    request.on('close', (error) => {
+        console.log('Last Transaction has occurred')
+    });
+
+    request.end();
+}
+
+async function processFile(event) {
+
+    var scanFiles = [];
+    var groupedScannedFiles = []
+    var countFiles = 0;
+    var numberFiles;
+    //joining path of directory 
+    const directoryPath = path.join('C:\\numarch\\', 'scans');
+    const indexedPath = path.join('C:\\numarch\\', 'indexes');
+    const worksPath = path.join('C:\\numarch\\', 'works');
+
+    // Scans folders
+    var indexedDir;
+    ////console.log(JSON.stringify(indexedDir));
+    var inFileName;
+    var inFileNames;
+    var str64;
+    var obj;
+    var nbre;
+    var countFiles;
+    var loadData;
+    var content;
+
+    scanFiles = [];
+    indexedDir = fs.readdirSync(worksPath);
+
+    for (var ind = 0; ind < indexedDir.length; ind++) {
+        //console.log('Index Folder: ' ,indexedDir[ind]);
+        inFileName = indexedDir[ind];
+        inFileNames = fs.readdirSync(path.join(worksPath, inFileName));
+        countFiles = inFileNames.length - 1;
+        nbre = 0;
+        scanFiles = [];
+        loadData = ""
+       /// if (fs.existsSync(dir)) { 
+        try{
+            content = fs.readFileSync(path.join(worksPath, inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
+            //console.log(content);
+            loadData = JSON.parse(content); //now it an object
+        } catch (err) {
+             countFiles++;
+             console.error();
+        }
+       
+
+       // //console.log(JSON.stringify(inFileNames));
+        for (f in inFileNames) {
+
+            if (inFileNames[f] === 'data.json') continue;
+
+            obj = {}
+            obj.filenom = ""
+            obj.enbase64 = ""
+            obj.state = false
+            obj.data = "" //TODO: extract data from xml file
+            obj.filenom = inFileNames[f];
+            obj.enbase64 = await base64_encode(path.join(worksPath, inFileName, inFileNames[f]));
+            
+            nbre++;
+            if (countFiles == nbre) {
+                obj.data = loadData;
+                scanFiles.push(obj);
+                groupedScannedFiles.push(scanFiles)
+            }
+            else{
+                scanFiles.push(obj);
+            }
+        }
+    }
+    //console.log('scanned: ',groupedScannedFiles.length);
+
+    scanFiles = [];
+    var indexedDirs = fs.readdirSync(directoryPath);
+    var chemin;
+    indexedDirs = indexedDirs.filter(f => fs.statSync(path.join(directoryPath,f)).isDirectory())
+    countFolders = indexedDirs.length;
+    nbreFolder = 0;
+    
+    if (countFolders === 0) {
+        var message = groupedScannedFiles.length;
+        var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
+        message = message.toString();
+        message = message + " " + piece
+         //    event.sender.send('actionReply', groupedScannedFiles.reverse());
+         event.sender.send('actionReply', groupedScannedFiles);
+
+        dialog.showMessageBoxSync(mainWindow, {
+            type: 'info',
+            title: 'AFB-SCANNUMARCH',
+            message: message,
+            buttons: ['OK']
+        });
+    }
+
+    for (var d in indexedDirs) {
+        nbreFolder++;
+        chemin = fs.statSync(path.join(directoryPath,indexedDirs[d]));
+        if (chemin.isDirectory()) {
+            console.log('Scan folder: ' + indexedDirs[d])
+            indexedDir = fs.readdirSync(path.join(directoryPath,indexedDirs[d]));
+            countFiles = indexedDir.length;
+            nbre = 0;
+            var timestamp;
+            await orderCollectFile(indexedDir)
+
+            for (var ind in indexedDir) {
+                
+                inFileName = indexedDir[ind];
+
+            //    ext = path.extname(path.join(directoryPath, indexedDirs[d], inFileName));
+             //   basename = path.basename( inFileName, ext )
+            //    console.log('basename ',parseInt(basename.replace('image-', '')));
+                timestamp = new Date();
+                var instantTime = moment(timestamp).format(simpleFormat); 
+                //console.log('instantTime ',instantTime);
+                 
+                obj = {}
+                obj.foldernom = indexedDirs[d]
+                obj.filenom = ""
+                obj.enbase64 = ""
+                obj.state = false
+                obj.data = "" //TODO: extract data from xml file
+                obj.filenom = 'tmp_' + instantTime + '_' + inFileName;
+            //    console.log('Processing File - 0: ' ,indexedDir[ind]);
+                obj.enbase64 = await base64_encode(path.join(directoryPath, indexedDirs[d], inFileName));
+            //    console.log('Processing File: ' ,indexedDir[ind]);
+                
+                await readQRCode(path.join(directoryPath, indexedDirs[d], inFileName))
+                        .then((message) => {
+                        
+                    nbre++;
+                    if (message.indexOf('AFB QRCODE NOT FOUND') !== -1) {
+                        //console.log("qrcode = "+message);
+                        obj.state = false
+                        obj.data = ""
+                        scanFiles.push(obj);
+                    }
+                    else{
+                        //console.log("qrcode = "+message);
+                        obj.state = true
+                        obj.data = extractInformation(message)
+                        scanFiles.push(obj);
+                        groupedScannedFiles.push(scanFiles)
+                        scanFiles = [];
+                    }
+                    //console.log("countFiles = "+countFiles+", nbre = "+nbre)
+                    if(countFiles === nbre) {
+                        if (scanFiles.length !==0 ){
+                            groupedScannedFiles.push(scanFiles)
+                        }
+                        //  dialog.showMessageBox('AFB-SCANNUMARCH', groupedScannedFiles.length + groupedScannedFiles.length < 2 ? 'Pièce trouvé' : 'Pièces trouvées');
+                        //console.log('message scanned: ',groupedScannedFiles.length);
+                   
+                    }
+                }).catch((err) => {
+                    //console.log("error: " + err);
+                    obj.state = false
+                    obj.data = ""
+                    scanFiles.push(obj);
+                });
+            }
+            //console.log("countFolders = "+countFolders+", nbreFolder = "+nbreFolder)
+            if(countFolders === nbreFolder) {
+                console.log('message scanned: ',groupedScannedFiles.length);
+                var message = groupedScannedFiles.length;
+                var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
+                message = message.toString();
+                message = message + " " + piece
+
+               // event.sender.send('actionReply', groupedScannedFiles.reverse());
+                event.sender.send('actionReply', groupedScannedFiles);
+
+                dialog.showMessageBoxSync(mainWindow, {
+                    type: 'info',
+                    title: 'AFB-SCANNUMARCH',
+                    message: message,
+                    buttons: ['OK']
+                });
+            }
+            
+        }
+    }
+}
+
+async function processFile2(event) {
+
+    var scanFiles = [];
+    var groupedScannedFiles = []
+    var countFiles = 0;
+    var numberFiles;
+    //joining path of directory 
+    const directoryPath = path.join('C:\\numarch\\', 'scans');
+    const indexedPath = path.join('C:\\numarch\\', 'indexes');
+    const worksPath = path.join('C:\\numarch\\', 'works');
+
+    // Scans folders
+    var indexedDir;
+    ////console.log(JSON.stringify(indexedDir));
+    var inFileName;
+    var inFileNames;
+    var str64;
+    var obj;
+    var nbre;
+    var countFiles;
+    var loadData;
+    var content;
+
+    scanFiles = [];
+    indexedDir = fs.readdirSync(worksPath);
+
+    for (var ind = 0; ind < indexedDir.length; ind++) {
+        //console.log('Index Folder: ' ,indexedDir[ind]);
+        inFileName = indexedDir[ind];
+        inFileNames = fs.readdirSync(path.join(worksPath, inFileName));
+        countFiles = inFileNames.length - 1;
+        nbre = 0;
+        scanFiles = [];
+        loadData = ""
+       /// if (fs.existsSync(dir)) { 
+        try{
+            content = fs.readFileSync(path.join(worksPath, inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
+            //console.log(content);
+            loadData = JSON.parse(content); //now it an object
+        } catch (err) {
+             countFiles++;
+             console.error();
+        }
+       
+
+       // //console.log(JSON.stringify(inFileNames));
+        for (f in inFileNames) {
+
+            if (inFileNames[f] === 'data.json') continue;
+
+            obj = {}
+            obj.filenom = ""
+            obj.enbase64 = ""
+            obj.state = false
+            obj.data = "" //TODO: extract data from xml file
+            obj.filenom = inFileNames[f];
+            obj.enbase64 = await base64_encode(path.join(worksPath, inFileName, inFileNames[f]));
+            
+            nbre++;
+            if (countFiles == nbre) {
+                obj.data = loadData;
+                scanFiles.push(obj);
+                groupedScannedFiles.push(scanFiles)
+            }
+            else{
+                scanFiles.push(obj);
+            }
+        }
+    }
+    //console.log('scanned: ',groupedScannedFiles.length);
+
+    scanFiles = [];
+    var indexedDirs = fs.readdirSync(directoryPath);
+    var chemin;
+    indexedDirs = indexedDirs.filter(f => fs.statSync(path.join(directoryPath,f)).isDirectory())
+    countFolders = indexedDirs.length;
+    nbreFolder = 0;
+    
+    if (countFolders === 0) {
+        var message = groupedScannedFiles.length;
+        var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
+        message = message.toString();
+        message = message + " " + piece
+    //    event.sender.send('actionReply', groupedScannedFiles.reverse());
+        event.sender.send('actionReply', groupedScannedFiles);
+
+        dialog.showMessageBoxSync(mainWindow, {
+            type: 'info',
+            title: 'AFB-SCANNUMARCH',
+            message: message,
+            buttons: ['OK']
+        });
+    }
+    else {
+        requestServiceCode(event);
+    }
+
+
+   
+
+}
+
+async function orderCollectFile(collection) {
+
+         collection = await collection.sort((n1,n2) => {
+        
+          var extNum1,num1, extNum2, num2 
+          extNum1 = path.extname(n1);
+          num1 = path.basename( n1, extNum1 ).replace('image-', '')
+          extNum2 = path.extname(n2);
+          num2 = path.basename( n2, extNum2 ).replace('image-', '')
+          
+
+          if (parseInt(num1) > parseInt(num2)) {
+              return 1;
+          }
+  
+          if (parseInt(num1) < parseInt(num2)) {
+              return -1;
+          }
+  
+          return 0;
+         
+         //return parseInt(num1) - parseInt(num2);
+      });
+
+      return collection;
+  
+}
+
+async function requestServiceCode(event) {
+    //console.log("..... REQUEST ......")
+     var endpoint = "http://127.0.0.1:8989/rest/api/v1/files/images/qrcode";
+     const request = net.request(endpoint);
+ 
+     request.on('response', (response) => {
+         console.log(`STATUS: ${response.statusCode}`);
+ 
+         response.on('end', () => {
+             console.log('Service QRCODE - No more data in response.');
+            
+         });
+ 
+         response.on('data', (chunk) => {
+             console.log(`BODY: ${chunk}`);
+             var map = [];
+             try{
+                console.log("MAP KEY: "+typeof chunk)
+                map = JSON.parse(`${chunk}`)
+          
+                console.log("MAP KEY: "+ map.length)
+                var keys = Object.keys(map);
+                //map = JSON.parse(`${chunk}`)
+                console.log("MAP keys: "+ keys)
+              // console.log("MAP: "+chunk.Couleur0006)
+            //    console.log("MAP KEY: "+map.length)
+               
+             //   for (let [key, value] of map) {
+             //       console.log("MAP KEY: "+key)
+             //   }
+             var result = [];
+             keys.forEach(function(key){
+                result.push(map[key]);
+            });
+            console.log("result KEY: "+JSON.stringify(result[0]))
+              
+             }
+             catch(err) {
+                console.log("MAP ERR: "+err)
+             }
+             
+         });
+ 
+ 
+     });
+ 
+     request.on('finish', () => {
+         //console.log('Request is Finished')
+     });
+     request.on('abort', () => {
+         //console.log('Request is Aborted')
+     });
+     request.on('error', (error) => {
+         //console.log(`ERROR: ${JSON.stringify(error)}`)
+         dialog.showErrorBox('AFB-SCANNUMARCH', 'SERVICE INDISPONIBLE.');
+         event.sender.send('actionReply', "AFB-SERVICE-ERROR");
+     });
+     request.on('close', (error) => {
+         //console.log('Last Transaction has occurred')
+     });
+ 
+     request.end();
+ }
+  
+   
