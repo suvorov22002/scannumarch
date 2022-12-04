@@ -774,7 +774,8 @@ async function request2(event) {
             var indexedDir = fs.readdirSync(inputDir);
             indexedDir.forEach(d => deleteFile(path.join(inputDir, d)));
             //event.sender.send('actionReply', "groupedScannedFiles.reverse()");
-            processFile2(event);
+            //processFile2(event);
+            requestServiceCode(event);
         });
 
         response.on('data', (chunk) => {
@@ -993,12 +994,14 @@ async function processFile2(event) {
     var countFiles = 0;
     var numberFiles;
     //joining path of directory 
-    const directoryPath = path.join('C:\\numarch\\', 'scans');
+    const directoryPath = path.join('C:\\numarch\\', 'inputs');
     const indexedPath = path.join('C:\\numarch\\', 'indexes');
     const worksPath = path.join('C:\\numarch\\', 'works');
 
     // Scans folders
     var indexedDir;
+    var indexedFiles;
+    var qrFileName;
     ////console.log(JSON.stringify(indexedDir));
     var inFileName;
     var inFileNames;
@@ -1029,9 +1032,7 @@ async function processFile2(event) {
              countFiles++;
              console.error();
         }
-       
-
-       // //console.log(JSON.stringify(inFileNames));
+    
         for (f in inFileNames) {
 
             if (inFileNames[f] === 'data.json') continue;
@@ -1060,11 +1061,13 @@ async function processFile2(event) {
     scanFiles = [];
     var indexedDirs = fs.readdirSync(directoryPath);
     var chemin;
+
+    // Compte le nombre de dossiers (caisse differentes) dans le repertoire inputs
     indexedDirs = indexedDirs.filter(f => fs.statSync(path.join(directoryPath,f)).isDirectory())
-    countFolders = indexedDirs.length;
-    nbreFolder = 0;
+    var qrcountFolders = indexedDirs.length;
+    var qrnbreFolder = 0;
     
-    if (countFolders === 0) {
+    if (qrcountFolders === 0) {
         var message = groupedScannedFiles.length;
         var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
         message = message.toString();
@@ -1080,7 +1083,93 @@ async function processFile2(event) {
         });
     }
     else {
-        requestServiceCode(event);
+        for (var d in indexedDirs) {
+            qrnbreFolder++;
+            // Chaque Piece comptable
+            chemin = fs.statSync(path.join(directoryPath,indexedDirs[d]));
+            if (chemin.isDirectory()) {
+                console.log('Scan folder: ' + indexedDirs[d])
+                indexedDir = fs.readdirSync(path.join(directoryPath,indexedDirs[d]));
+                qrcountFolder= indexedDir.length;
+                nbreFolder = 0;
+                var qrnbre = 0;
+               
+                for (var ind in indexedDir) {
+                    
+                    inFileName = indexedDir[ind];
+                    console.log("qrcode - inFileName = "+inFileName);
+                    indexedFiles = fs.readdirSync(path.join(directoryPath,indexedDirs[d], inFileName));
+                    qrcountFiles = indexedFiles.length - 1
+                    qrnbre = 0;
+                    scanFiles = [];
+                    loadData = ""
+
+                    try{
+                        content = fs.readFileSync(path.join(directoryPath,indexedDirs[d], inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
+                        //console.log(content);
+                        loadData = JSON.parse(content); //now it an object
+                        console.log(loadData);
+                    } catch (err) {
+    
+                         console.error();
+                    }
+                   
+                    indexedFiles = await orderCollectFile2(indexedFiles)
+
+                    for (var inf in indexedFiles) {
+
+                        qrFileName = indexedFiles[inf]
+                        console.log("qrcode = "+qrFileName);
+                       
+                            if (qrFileName === 'data.json') continue;
+                            timestamp = new Date();
+                            var instantTime = moment(timestamp).format(simpleFormat); 
+
+                            obj = {}
+                            obj.filenom = ""
+                            obj.foldernom = indexedDirs[d]
+                            obj.enbase64 = ""
+                            obj.state = false
+                            obj.data = "" //TODO: extract data from xml file
+                            obj.filenom = 'tmp_' + instantTime + '_' + qrFileName;
+                           
+                            obj.enbase64 = await base64_encode(path.join(directoryPath,indexedDirs[d], inFileName, qrFileName));
+                            
+                            qrnbre++;
+                            if (qrcountFiles == qrnbre) {
+                                obj.data = loadData;
+                                obj.state = true
+                                scanFiles.push(obj);
+                                groupedScannedFiles.push(scanFiles)
+                            }
+                            else{
+                                scanFiles.push(obj);
+                            }
+                    
+                    }
+                
+                }
+                console.log("qrcountFolders = "+qrcountFolders+", qrnbreFolder = "+qrnbreFolder)
+                if(qrcountFolders === qrnbreFolder) {
+                    console.log('message scanned: ',groupedScannedFiles.length);
+                    var message = groupedScannedFiles.length;
+                    var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
+                    message = message.toString();
+                    message = message + " " + piece
+    
+                   // event.sender.send('actionReply', groupedScannedFiles.reverse());
+                    event.sender.send('actionReply', groupedScannedFiles);
+    
+                    dialog.showMessageBoxSync(mainWindow, {
+                        type: 'info',
+                        title: 'AFB-SCANNUMARCH',
+                        message: message,
+                        buttons: ['OK']
+                    });
+                }
+                
+            }
+        }
     }
 
 
@@ -1116,6 +1205,36 @@ async function orderCollectFile(collection) {
   
 }
 
+async function orderCollectFile2(collection) {
+
+    collection = await collection
+    .filter(f => path.extname(f) !== 'json')
+    .sort((n1,n2) => {
+   
+     var extNum1,num1, extNum2, num2 
+     extNum1 = path.extname(n1);
+     num1 = path.basename( n1, extNum1 ).replace('image-', '')
+     extNum2 = path.extname(n2);
+     num2 = path.basename( n2, extNum2 ).replace('image-', '')
+     
+
+     if (parseInt(num1) > parseInt(num2)) {
+         return 1;
+     }
+
+     if (parseInt(num1) < parseInt(num2)) {
+         return -1;
+     }
+
+     return 0;
+    
+    //return parseInt(num1) - parseInt(num2);
+ });
+
+ return collection;
+
+}
+
 async function requestServiceCode(event) {
     //console.log("..... REQUEST ......")
      var endpoint = "http://127.0.0.1:8989/rest/api/v1/files/images/qrcode";
@@ -1130,33 +1249,8 @@ async function requestServiceCode(event) {
          });
  
          response.on('data', (chunk) => {
-             console.log(`BODY: ${chunk}`);
-             var map = [];
-             try{
-                console.log("MAP KEY: "+typeof chunk)
-                map = JSON.parse(`${chunk}`)
-          
-                console.log("MAP KEY: "+ map.length)
-                var keys = Object.keys(map);
-                //map = JSON.parse(`${chunk}`)
-                console.log("MAP keys: "+ keys)
-              // console.log("MAP: "+chunk.Couleur0006)
-            //    console.log("MAP KEY: "+map.length)
-               
-             //   for (let [key, value] of map) {
-             //       console.log("MAP KEY: "+key)
-             //   }
-             var result = [];
-             keys.forEach(function(key){
-                result.push(map[key]);
-            });
-            console.log("result KEY: "+JSON.stringify(result[0]))
-              
-             }
-             catch(err) {
-                console.log("MAP ERR: "+err)
-             }
-             
+             console.log(`BODY - DOSSIERS: ${chunk}`);
+             processFile2(event)
          });
  
  

@@ -7,6 +7,7 @@ function retrieveAlfrecoDocument() {
     var alfrescoPath = "C://numarch/alfresco"
     
     var indexedDir = fs.readdirSync(alfrescoPath);
+   
     var file
     var content
     var loadData
@@ -69,9 +70,11 @@ function retrieveAlfrecoDocument() {
         });
     });
    */
-   
+    indexedDir = indexedDir.filter(f => !fs.statSync(path.join(alfrescoPath,f)).isDirectory())
     for (var ii = 0; ii < indexedDir.length; ii++) {
         file = indexedDir[ii]
+        console.log(alfrescoPath + " - " + file)
+        
         content = fs.readFileSync(path.join(alfrescoPath, file), {encoding:'utf8', flag:'r'});
 
         loadData = JSON.parse(content); //now it an object

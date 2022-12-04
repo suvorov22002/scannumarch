@@ -29,6 +29,7 @@ function configFolders() {
   var dirIndexes = 'C:\\numarch\\indexes';
   var dirAlfreco = 'C:\\numarch\\alfresco';
   var dirWorks = 'C:\\numarch\\works';
+  var inWorks = 'C:\\numarch\\inputs';
 
   // Configure all directories
   
@@ -52,6 +53,10 @@ function configFolders() {
   if (!fs.existsSync(dirWorks)){
       fs.mkdirSync(dirWorks, { recursive: true });
   }
+   /* Repertoire des dossiers traités automatiquements */
+   if (!fs.existsSync(inWorks)){
+    fs.mkdirSync(inWorks, { recursive: true });
+}
 }
 configFolders();
 
