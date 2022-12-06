@@ -3,6 +3,7 @@ const path = require('path');
 const { PDFDocument, PageSizes } = require('pdf-lib')
 const ipc = require('electron').ipcRenderer;
 
+
 let globalResponse; // handle array of object's  (name and base64)
 let map = new Map();
 let charge = 0;
@@ -374,7 +375,7 @@ asyncMsgBtn.addEventListener('click', () => {
 
     ipc.once('actionReply', async function(event, response){
        //console.log("Response: "+response)
-      
+       
        //clearInterval(setLoad);
        $('body').removeClass('loading')
        if (response === 'AFB-SERVICE-ERROR') return;
@@ -666,7 +667,7 @@ function updateProperties() {
 
 
     if(validData()){
-      
+      console.log('je valide les proprietes')
       var fileLive = localStorage.getItem('CURRENT_FILE');
       var arrayCurrFile = map.get(fileLive);
   
@@ -682,7 +683,7 @@ function updateProperties() {
         console.log('update properties: '+JSON.stringify(arrayCurrFile[arrayCurrFile.length - 1].data))
         arrayCurrFile[arrayCurrFile.length - 1].state = true
         globalResponse[xxx] = arrayCurrFile;
-        anomalies();
+        anomaliesAfterDelete();
       }
     } 
     else{
