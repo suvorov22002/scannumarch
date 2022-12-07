@@ -198,7 +198,7 @@ function onSupp(btn) {
   globalResponse = globalResponse.filter(item => item !== ele)
   //console.log("globalResponse: "+globalResponse.length)
 
-  console.log("ele[ele.length - 1].state: "+ele[ele.length - 1].state)
+//  console.log("ele[ele.length - 1].state: "+ele[ele.length - 1].state)
   // Enlever dans MAP
   if(!ele[ele.length - 1].state) {
       charge = charge - 1
@@ -243,10 +243,10 @@ function onSupp(btn) {
         var interFileN = ele[ele.length - 1].filenom;
         if (interFileN.startsWith('work')) {
           interFileN = interFileN.replace('work','tmp')
-          console.log('delete here')
+        //  console.log('delete here')
           dirWorks = 'C:\\numarch\\works';
           lastDot = interFileN.lastIndexOf('.');
-          console.log(lastDot)
+        //  console.log(lastDot)
           deleteFolder(path.join(dirWorks, interFileN.substring(0, lastDot)))
         }
         
@@ -378,6 +378,7 @@ asyncMsgBtn.addEventListener('click', () => {
        
        //clearInterval(setLoad);
        $('body').removeClass('loading')
+       $('#anomalie').hide();
        if (response === 'AFB-SERVICE-ERROR') return;
 
        globalResponse = []
@@ -451,10 +452,10 @@ function fillProperties(internData) {
   for (let i = 0; i < internData.length; i++) {
          
     var src = 'data:image/jpg;base64,'+ internData[i].enbase64;
-    var divContents = "<div id='block-" + i + "' class='block pt-2 mt-2'>" + 
+    var divContents = "<div id='block-" + i + "' class='block pt-2 mt-2 '>" + 
     "<span id='' class='text-white text-xs font-bold uppercase rounded p-2 m-2' href = '#' >"+internData[i].filenom+" &nbsp;&nbsp;" + 
     "<input class='splitAfb' type='checkbox' onchange='onChecked(event);' id='btnCheck-"+ i + "'></span><button type='button' class='mr-2' id='docx-" + i + "'title='Supprimer le document.' onclick='onSuppDoc(this);' ><i class='fa fa-times-circle' style='font-size:18px;color:red'></i></button>" + 
-    "<img class='mb-2 responsive' src='"+src+"' alt='bordereau' width='500px' ></img>" + 
+    "<img class='mb-2 responsive box' src='"+src+"' alt='bordereau' width='500px' ></img>" + 
     "</div>";
     currentChildren2.append(divContents);
  }
@@ -519,9 +520,9 @@ function anomaliesAfterSplit() {
                 else{
                 //  if (internDatas[internDatas.length-1].state){
                     internDatas[internDatas.length-1].state = true
-                   console.log('trackError ', console.log('trackError ', trackError)) 
-                    trackError = validDataUnique(console.log('trackError ', trackError) );
-                    //console.log('trackError ', trackError) 
+                  //  console.log(internDatas[internDatas.length-1].data) 
+                    trackError = validDataUnique(internDatas[internDatas.length-1].data);
+                    console.log('trackError after ', trackError) 
                     if(!trackError) {
                       charge = charge + 1;
                       document.getElementById("btn-"+jj).style.borderColor = "red";
@@ -530,6 +531,7 @@ function anomaliesAfterSplit() {
                     }
                     else {
                       document.getElementById("btn-"+jj).style.borderColor = "green";
+                      charge = charge - 1;
                     }
                     
                 //  }
@@ -581,11 +583,11 @@ function onSplit() {
   var arrayRemovedFiles = [];
 
   fileLive = localStorage.getItem('CURRENT_FILE');
-  console.log('CURRENT_FILE: '+fileLive)
+//  console.log('CURRENT_FILE: '+fileLive)
   if (fileLive) {
     arrayLive = map.get(fileLive)
   }
- console.log('ls: '+ls.length+' arrayLive: '+arrayLive.length)
+// console.log('ls: '+ls.length+' arrayLive: '+arrayLive.length)
   for (var i=0; i<ls.length-1; i++) {
     //console.log(document.getElementById("btnCheck-"+ i).checked)
     if (document.getElementById("btnCheck-"+ i).checked) {
@@ -604,16 +606,16 @@ function onSplit() {
   globalResponse.push(arrayRemovedFiles)
 
   // Ajouter dans MAP
-  console.log('state: '+arrayRemovedFiles[arrayRemovedFiles.length - 1].state)
+ // console.log('state: '+arrayRemovedFiles[arrayRemovedFiles.length - 1].state)
   map.set(arrayRemovedFiles[arrayRemovedFiles.length - 1].filenom, arrayRemovedFiles);
   
   // Mettre current file (arrayLive) à jour dans MAP
   const jndex = globalResponse.findIndex(object => {
     return object === arrayLive;
   }); 
-  console.log(arrayLive.length)
+//  console.log(arrayLive.length)
   arrayLive = arrayLive.filter(item => !arrayRemovedFiles.includes(item))
-  console.log(arrayLive.length)
+//  console.log(arrayLive.length)
   if (jndex !== -1) {
     //arrayLive[arrayLive.length - 1].state = true
     globalResponse[jndex] = arrayLive;
@@ -760,7 +762,7 @@ function validData() {
     if (erroFields.length != 0) {
         for (obj in erroFields) {
           var elem = 'sp_'+erroFields[obj]
-          console.log(elem)
+        //  console.log(elem)
           document.getElementById(elem).classList.add('error');
         }
         return false;

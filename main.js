@@ -562,7 +562,8 @@ const readQRCode = async (filePath) => {
 }
 
 const readQRCode2 = async (filename) => {
-    const filePath = path.join(__dirname, filename);
+    //const filePath = path.join(__dirname, filename);
+    const filePath = path.join(filename);
     try{
       if (fs.existsSync(filePath)) {
         const img = await Jimp.read(fs.readFileSync(filePath));
@@ -578,11 +579,11 @@ const readQRCode2 = async (filename) => {
       return error + '- ';
     }
   }
- /* readQRCode2('./assets/img/numarch.jpg').then((message) => {
-    //console.log("qrcode = "+message);
-    }).catch(console.log);
-  readQRCode2('./assets/img/image-002.jpg').then(console.log).catch(console.log);
-*/
+//  readQRCode2('C://numarch/inputs/numarch0512/image-276/image-274.jpg').then((message) => {
+//    console.log("qrcode = "+message);
+//    }).catch(console.log);
+//  readQRCode2('./assets/img/image-002.jpg').then(console.log).catch(console.log);
+
  function extractInformation(message) {
     var trx = {};
     trx.setEve = message.substring(0, 6);
@@ -1088,11 +1089,14 @@ async function processFile2(event) {
             // Chaque Piece comptable
             chemin = fs.statSync(path.join(directoryPath,indexedDirs[d]));
             if (chemin.isDirectory()) {
-                console.log('Scan folder: ' + indexedDirs[d])
+             //   console.log('Scan folder: ' + indexedDirs[d])
                 indexedDir = fs.readdirSync(path.join(directoryPath,indexedDirs[d]));
                 qrcountFolder= indexedDir.length;
                 nbreFolder = 0;
                 var qrnbre = 0;
+
+                indexedDir = await orderCollectFile2(indexedDir)
+
                
                 for (var ind in indexedDir) {
                     
@@ -1108,7 +1112,7 @@ async function processFile2(event) {
                         content = fs.readFileSync(path.join(directoryPath,indexedDirs[d], inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
                         //console.log(content);
                         loadData = JSON.parse(content); //now it an object
-                        console.log(loadData);
+                      //  console.log(loadData);
                     } catch (err) {
     
                          console.error();
@@ -1119,7 +1123,7 @@ async function processFile2(event) {
                     for (var inf in indexedFiles) {
 
                         qrFileName = indexedFiles[inf]
-                        console.log("qrcode = "+qrFileName);
+                      //  console.log("qrcode = "+qrFileName);
                        
                             if (qrFileName === 'data.json') continue;
                             timestamp = new Date();
