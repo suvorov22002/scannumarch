@@ -20,6 +20,9 @@
   })
   
   console.log(process)
+  process.on('UnhandledPromiseRejectionWarning', function (error) {
+    log.info('uncaughtException')
+})
 
   
 function configFolders() {
@@ -30,6 +33,7 @@ function configFolders() {
   var dirAlfreco = 'C:\\numarch\\alfresco';
   var dirWorks = 'C:\\numarch\\works';
   var inWorks = 'C:\\numarch\\inputs';
+  var archDocx = 'C:\\numarch\\archDocx';
 
   // Configure all directories
   
@@ -56,7 +60,11 @@ function configFolders() {
    /* Repertoire des dossiers traités automatiquements */
    if (!fs.existsSync(inWorks)){
     fs.mkdirSync(inWorks, { recursive: true });
-}
+   }
+   /* Repertoire d'archive des dossiers scannés deja traité */
+   if (!fs.existsSync(archDocx)){
+    fs.mkdirSync(archDocx, { recursive: true });
+   }
 }
 configFolders();
 

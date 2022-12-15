@@ -1,5 +1,7 @@
 const {app, Menu, remote, BrowserWindow, ipcMain} = require('electron');
 const fs = require('fs');
+const log = require('electron-log');
+const settings = require('electron-settings')
 //const app = electron.app;
 //const remote = electron.remote
 //const BrowserWindow = electron.BrowserWindow
@@ -12,13 +14,13 @@ const { dialog } = require('electron');
 const jsdom = require('jsdom');
 const dom = new jsdom.JSDOM("");
 
-const {getMimeType} = require('stream-mime-type')
-const { PDFDocument, PageSizes } = require('pdf-lib')
+//const {getMimeType} = require('stream-mime-type')
+//const { PDFDocument, PageSizes } = require('pdf-lib')
 
 var Jimp = require("jimp");
 var QrCode = require('qrcode-reader');
-const { resolve } = require('path');
-const { rejects } = require('assert');
+//const { resolve } = require('path');
+//npm const { rejects } = require('assert');
 const moment = require('moment');
 
 const simpleFormat = 'YYMMDDHHmmssSSSS'; 
@@ -27,6 +29,16 @@ let mainWindow;
 const ProgressBar = require('electron-progressbar');
 
 function createWindow () {
+    var link = 'C:\\numarch'
+    log.info("Creating window for", link)
+    let key = `windowState-${link}`
+//    try{
+        let windowState = settings.getSync(key) || {width: 1024, height: 768}
+//    }
+//    catch(err){
+//        log.error(err)
+//    }
+   
 
     mainWindow = new BrowserWindow({
         width: 1024,
@@ -39,7 +51,7 @@ function createWindow () {
             contextIsolation: false
         }
     });
-
+log.warn('Some problem appears');
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'index.html'),
         protocol: 'file:',
@@ -88,7 +100,15 @@ function createWindow () {
 }
 
 app.whenReady().then(() => {
-    createWindow()
+    
+    try{
+        createWindow()
+    }
+    catch(err){
+        log.error(err)
+        app.quit()
+    }
+   
 
     app.on('activate', function() {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -98,6 +118,9 @@ app.whenReady().then(() => {
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit()
 })
+
+
+
 
 ipcMain.on("loadScanFile", async (event, args) => {
     
@@ -762,7 +785,7 @@ function requestGet() {
 }
 
 async function request2(event) {
-   //console.log("..... REQUEST ......")
+    const fs = require('fs-extra');
     var endpoint = "http://127.0.0.1:8989/rest/api/v1/files/images";
     const request = net.request(endpoint);
 
@@ -772,10 +795,20 @@ async function request2(event) {
         response.on('end', () => {
             console.log('No more data in response.');
             var inputDir = path.join('C:\\numarch\\', 'in') 
+            var archDir = path.join('C:\\numarch\\', 'archDocx') 
             var indexedDir = fs.readdirSync(inputDir);
-            indexedDir.forEach(d => deleteFile(path.join(inputDir, d)));
-            //event.sender.send('actionReply', "groupedScannedFiles.reverse()");
-            //processFile2(event);
+            timestamp = new Date();
+            var instantTime = moment(timestamp).format(simpleFormat); 
+
+            indexedDir.forEach(d => {
+              //  deleteFile(path.join(inputDir, d))
+                fs.move(path.join(inputDir, d), path.join(archDir, 'arch_'+instantTime+'_'+d), (err) => {
+                    if (err) return console.log(err);
+                    console.log(`File successfully moved!!`);
+                });
+            });
+           
+
             requestServiceCode(event);
         });
 

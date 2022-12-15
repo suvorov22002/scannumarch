@@ -220,13 +220,16 @@ function onSupp(btn) {
       if(elets) elets.remove();
 
       var nn = globalResponse.length;
-      var lastFilesRetrieved = globalResponse[nn-1]
-      var fileDisplayed = lastFilesRetrieved[lastFilesRetrieved.length-1]
+      console.log("nn: ", nn)
+    if(nn != 0) {
+        var lastFilesRetrieved = globalResponse[nn-1]
+        console.log("lastFilesRetrieved.length: ", lastFilesRetrieved.length)
+        var fileDisplayed = lastFilesRetrieved[lastFilesRetrieved.length-1]
 
-      // Fill properties and display receipts
-      fillProperties(lastFilesRetrieved);
-      localStorage.setItem('CURRENT_FILE', fileDisplayed.filenom);
-     
+        // Fill properties and display receipts
+        fillProperties(lastFilesRetrieved);
+        localStorage.setItem('CURRENT_FILE', fileDisplayed.filenom);
+    }
       //$('#btn-'+(nn-1)).addClass('onlive');
 
   // - Bloc documents traités (see, approve, delete)
@@ -452,10 +455,16 @@ function fillProperties(internData) {
   for (let i = 0; i < internData.length; i++) {
          
     var src = 'data:image/jpg;base64,'+ internData[i].enbase64;
-    var divContents = "<div id='block-" + i + "' class='block pt-2 mt-2 '>" + 
-    "<span id='' class='text-white text-xs font-bold uppercase rounded p-2 m-2' href = '#' >"+internData[i].filenom+" &nbsp;&nbsp;" + 
-    "<input class='splitAfb' type='checkbox' onchange='onChecked(event);' id='btnCheck-"+ i + "'></span><button type='button' class='mr-2' id='docx-" + i + "'title='Supprimer le document.' onclick='onSuppDoc(this);' ><i class='fa fa-times-circle' style='font-size:18px;color:red'></i></button>" + 
-    "<img class='mb-2 responsive box' src='"+src+"' alt='bordereau' width='500px' ></img>" + 
+    var divContents = "<div id='block-" + i + "' class='block pt-2 mt-2'>" + 
+    "<label for='btnCheck-"+ i + "'>" +
+
+        "<span id='' class='text-white text-xs font-bold uppercase rounded p-2 m-2' href = '#' >"+internData[i].filenom+" &nbsp;&nbsp;" + 
+        "<input class='splitAfb' type='checkbox' onchange='onChecked(event);' id='btnCheck-"+ i + "'></span><button type='button' class='mr-2' id='docx-" + i + "'title='Supprimer le document.' onclick='onSuppDoc(this);' >" +
+        "<i class='fa fa-times-circle' style='font-size:18px;color:red'></i></button>" + 
+    "<img class='mb-2 responsive' src='"+src+"' alt='bordereau' width='500px' ></img>" + 
+    
+    "</label>" +
+
     "</div>";
     currentChildren2.append(divContents);
  }

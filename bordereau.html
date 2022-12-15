@@ -76,7 +76,7 @@
                
                     <div class="relative ml-2 mr-2 mt-2">
                         <span id="sp_testlist"><label for="testlist" class="form-label text-xs font-bold">Type de document</label>*</span>
-                        <select class="form-select text-xs  type_doc" id="testlist" name="sellist" onchange="retrieveDocument();">
+                        <select style="font-size: 13px;" class="form-select type_doc" id="testlist" name="sellist" onchange="retrieveDocument();">
                       
                         </select>
                         
@@ -84,24 +84,24 @@
     
                     <div class="ml-2 mr-2 mt-2">
                         <span id="sp_user"><label for="user" class="form-label text-xs font-bold">Caissier</label>*</span>
-                        <input type="text" class="form-control" id="user" placeholder="Caissier" name="user" maxlength="4">
+                        <input type="text" style="font-size: 13px;" class="form-control" id="user" placeholder="Caissier" name="user" maxlength="4">
                     </div>
                     
                     <div class="ml-2 mr-2 mt-2">
                         <span id="sp_ncp"><label for="ncp" class="form-label text-xs font-bold">Numéro de compte</label>*</span>
-                        <input type="text" class="form-control" id="ncp" placeholder="Numéro de compte" name="ncp" maxlength="14">
+                        <input type="text"  style="font-size: 13px;" class="form-control" id="ncp" placeholder="Numéro de compte" name="ncp" maxlength="14">
                     </div>
                     <div class="ml-2 mr-2 mt-2">
                         <span id="sp_amount"><label for="amount" class="form-label text-xs font-bold">Montant</label>*</span>
-                        <input type="number" class="form-control mask" id="amount" placeholder="Montant" required name="amount" min="100" max="5000" step='100'>
+                        <input type="number" style="font-size: 13px;" class="form-control mask" id="amount" placeholder="Montant" required name="amount" min="100" max="5000" step='100'>
                     </div>
                     <div class="ml-2 mr-2 mt-2">
                         <span id="sp_ref"><label for="ref" class="form-label text-xs font-bold">Reference transaction</label>*</span>
-                        <input type="text" class="form-control" id="ref" placeholder="Reference" name="ref" required maxlength="6" onkeypress="return ²(event);">
+                        <input type="text" style="font-size: 13px;" class="form-control" id="ref" placeholder="Reference" name="ref" required maxlength="6" onkeypress="return ²(event);">
                     </div>
                     <div class="ml-2 mr-2 mt-2 text-blueGray-700 text-xs">
                         <span id="sp_age"><label for="age" class="form-label text-xs font-bold">Agence</label>*</span>
-                        <input type="text" class="form-control" id="age" placeholder="Agence" name="age" required maxlength="5" onkeypress="return verifNumber(event);">
+                        <input type="text" style="font-size: 13px;" class="form-control" id="age" placeholder="Agence" name="age" required maxlength="5" onkeypress="return verifNumber(event);">
                        
                     </div>
 
@@ -109,7 +109,7 @@
                       
                         <span id="sp_date"><label for="date" class="form-label text-xs font-bold">Date</label> *</span>
                         <div class="input-group date" id="datepicker">
-                            <input type="date" class="form-control" id="date"/>
+                            <input style="font-size: 13px;" type="date" class="form-control" id="date"/>
                           <!--  <span class="input-group-append">
                                 <span class="input-group-text bg-light d-block">
                                     <i class="fa fa-calendar"></i>
@@ -127,8 +127,8 @@
                         type="button" id="validData"
                         onclick="updateProperties();"
                     >
-                        <i class="fa fa-cart-plus" aria-hidden="true" style="color:rgb(253, 246, 246)"></i>
-                        Ajouter
+                        <i class="fa fa-check" aria-hidden="true" style="color:rgb(253, 246, 246)"></i>
+                        Valider
                     </button>
                 </div>
             </div>
@@ -146,15 +146,15 @@
                 onclick="onSplit();" [disabled] = "image_in" [hidden] = "instance"
             >
                 <i title="Decoupage" class="fa fa-cut" aria-hidden="true"></i>
-                Split
+                Separer
             </button>
             <button
-                class="bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
+                class="bg-orange-500 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
                 type="button"  id="btnFusion"
                 onclick="sendToFusion();" [disabled] = "image_in" [hidden] = "instance"
             >
-                <i class="fa fa-clock-o" aria-hidden="true"></i>
-              Fusion
+                <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                Envoyer
             </button>
             
             <button
