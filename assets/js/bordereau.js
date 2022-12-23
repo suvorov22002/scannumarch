@@ -868,11 +868,11 @@ function sendToFusion() {
    if (globalResponse === null) return;
    var fusionSize = globalResponse.length;
    var controlSize = 0;
-
+   $('body').addClass('loading')
 //   console.log('Fusion size: ',globalResponse.length)
    
   if (globalResponse && globalResponse.length > 0) {
-    $('body').addClass('loading')
+   
     let buff;   
     globalResponse.forEach(file => {
        var intermData = file[file.length - 1].filenom;
@@ -946,11 +946,7 @@ function sendToFusion() {
               writeToFile (path.join(intFolderWorks, f.filenom.replace('tmp', 'work')), buff)
             }
           }
-        //  var way = path.join(dirScans, f.foldernom, f.filenom.split('_')[2])
-        //console.log(JSON.stringify(f))
-        //console.log("dirScans: "+dirScans + " f.foldernom: "+f.foldernom + " f.filenom.split('_')[2] "+f.filenom.split('_')[2])
-        //  deleteFile(path.join(dirScans, f.foldernom, f.filenom.split('_')[2]))
-         
+       
        })
 
        if (controlSize == fusionSize) {
@@ -995,6 +991,9 @@ function sendToFusion() {
       }
 
       manageVisibleBtn();
+   }
+   else{
+      $('body').removeClass('loading')
    }
 }
 

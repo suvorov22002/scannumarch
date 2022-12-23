@@ -1134,7 +1134,7 @@ async function processFile2(event) {
                 for (var ind in indexedDir) {
                     
                     inFileName = indexedDir[ind];
-                    console.log("qrcode - inFileName = "+inFileName);
+                //    console.log("qrcode - inFileName = "+inFileName);
                     indexedFiles = fs.readdirSync(path.join(directoryPath,indexedDirs[d], inFileName));
                     qrcountFiles = indexedFiles.length - 1
                     qrnbre = 0;
