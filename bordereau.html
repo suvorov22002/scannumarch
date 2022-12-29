@@ -138,10 +138,18 @@
 
    <div class="col-sm-9 px-4">
     <!--<div class="md:w-9/12bgimg ">-->
-        
-        <div class="w-full flex justify-end m-1">
+        <div class="w-full m-1">
             <button
-                class="bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
+            class="bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
+            type="button"  id="btnJoin"
+            onclick="onFusion();" 
+            >
+                <i title="Fusion" class="fa fa-link" aria-hidden="true"></i>
+                Fusion
+            </button>
+
+            <button
+                class="float-right relative bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
                 type="button"  id="btnSplit"
                 onclick="onSplit();" [disabled] = "image_in" [hidden] = "instance"
             >
@@ -149,25 +157,13 @@
                 Separer
             </button>
             <button
-                class="bg-orange-500 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
+                class="float-right relative bg-orange-500 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
                 type="button"  id="btnFusion"
                 onclick="sendToFusion(event);" [disabled] = "image_in" [hidden] = "instance"
             >
                 <i class="fa fa-paper-plane" aria-hidden="true"></i>
                 Envoyer
             </button>
-        <!--    
-            <button
-                class="bg-orange-500 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
-                type="button"  id="btnFusion"
-                onclick="sendRToAcs();" [disabled] = "image_in" [hidden] = "!instance" 
-            >
-       
-            <i class="fa fa-paper-plane" aria-hidden="true"></i>
-            Envoyer
-            </button>
-        -->
-           
         </div>
        <!--   <app-document-viewer [imageCollection] =flex-auto "imgCollection1">class="w-full bg-blueGray-900 flex content-center img-scroll-bar items-center pt-2 pb-2 justify-center h-full"</app-document-viewer>-->
        

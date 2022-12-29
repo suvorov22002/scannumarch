@@ -89,12 +89,12 @@ let filteredTypes = [
 
   function manageVisibleBtn() {
     if (globalResponse === undefined || globalResponse.length === 0) {
-        //document.getElementById("btnAcs").style.visibility = "hidden"
+        document.getElementById("btnJoin").style.visibility = "hidden"
         document.getElementById("btnFusion").style.visibility = "hidden"
         document.getElementById("btnSplit").style.visibility = "hidden"
     }
     else{
-     // document.getElementById("btnAcs").style.visibility = "visible"
+      document.getElementById("btnJoin").style.visibility = "visible"
       document.getElementById("btnFusion").style.visibility = "visible"
       document.getElementById("btnSplit").style.visibility = "visible"
     }
@@ -171,6 +171,17 @@ function onLoadQRDoc(btn) {
 
     // Fill properties
     fillProperties(internData);
+
+    var crtlJoin = localStorage.getItem("CTRL_JOIN")
+    if (crtlJoin === undefined || crtlJoin === null) {
+       console.warn('Rien a fusionner')
+    }
+    else{
+       console.warn('Fusionner: '+crtlJoin)
+       crtlJoin = crtlJoin + ';' + id
+       localStorage.setItem("CTRL_JOIN", crtlJoin)
+    }
+
     resetClassOnlive(index);
     //$('#btn-'+index).addClass('onlive');
     localStorage.setItem('CURRENT_FILE', internData[internData.length - 1].filenom);
@@ -358,6 +369,7 @@ asyncMsgBtn.addEventListener('click', () => {
         map = new Map();
      }
     }
+  localStorage.removeItem("CTRL_JOIN")
 /*
     let setLoad = setInterval(
       () => {
@@ -405,7 +417,7 @@ asyncMsgBtn.addEventListener('click', () => {
        let currentProcess = $('#process');
        for (let j = 0; j < globalResponse.length; j++) {
            var internData = globalResponse[j];
-           currentProcess.append("<button type='button' id='btn-" + j + "' onkeydown='isKeyPressed(event)' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
+           currentProcess.append("<button type='button' id='btn-" + j + "' onkeydown='isKeyPressed(event, this)' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
            currentProcess.append("<button type='button' class='mr-2' id='btnOne-" + j + "' title='Supprimer ce dossier.' onclick='onSupp(this);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
            currentProcess.append("<button type='button' class='mr-2' id='btnTwo-" + j + "' title='Valider les Proprietés.' onclick ='onUpdate(this);'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
            
@@ -649,7 +661,7 @@ function onSplit() {
         var currProcess = $('#process');
         for (let j = globalResponse.length - 1; j < globalResponse.length; j++) {
             var internData = globalResponse[j];
-            currProcess.append("<button type='button' id='btn-" + j + "' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
+            currProcess.append("<button type='button' id='btn-" + j + "' onkeydown='isKeyPressed(event, this)' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
             currProcess.append("<button type='button' class='mr-2' id='btnOne-" + j + "' title='Supprimer ce dossier.' onclick='onSupp(this);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
             currProcess.append("<button type='button' class='mr-2' id='btnTwo-" + j + "' title='Valider les Proprietés.' onclick ='onUpdate(this);'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
         }
@@ -1161,23 +1173,37 @@ $(function() {
 });
 */
 
-function isKeyPressed(evt) {
+function isKeyPressed(evt, btn) {
       // verification des caratères saisis autorisés
   /*  let keyCode = evt.which ? evt.which : evt.keyCode;
     let accept = '.+*-/nN0123456789';
    
     console.log("keyCode: "+keyCode);
     console.log("evt.keyCode: "+evt.keyCode);*/
-
+    var listBtn = localStorage.getItem("CTRL_JOIN")
     let keyCode = evt.which ? evt.which : evt.keyCode;
     console.log("keyCode: "+keyCode);
+    console.log("keyCode: "+btn.id);
+  
   if (event.ctrlKey) {
-    
+    localStorage.setItem("CTRL_JOIN", btn.id)
     console.log("keyCode: "+ "The CTRL key was pressed!");
   } else {
-   
     console.log("keyCode: "+ "The CTRL key was NOT pressed!");
   }
    
 
+}
+
+function onFusion() {
+
+  var listBtn = localStorage.getItem("CTRL_JOIN")
+
+  if (listBtn !== undefined && listBtn !== null) {
+    var allJoinBtn = listBtn.split(';')
+    const unique = Array.from(new Set(allJoinBtn.map((item) => item)));
+    console.log(unique)
+  }
+
+  localStorage.removeItem("CTRL_JOIN")
 }
