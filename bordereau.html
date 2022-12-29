@@ -151,22 +151,22 @@
             <button
                 class="bg-orange-500 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
                 type="button"  id="btnFusion"
-                onclick="sendToFusion();" [disabled] = "image_in" [hidden] = "instance"
+                onclick="sendToFusion(event);" [disabled] = "image_in" [hidden] = "instance"
             >
                 <i class="fa fa-paper-plane" aria-hidden="true"></i>
                 Envoyer
             </button>
-            
+        <!--    
             <button
                 class="bg-orange-500 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
-                type="button"  id="btnAcs"
+                type="button"  id="btnFusion"
                 onclick="sendRToAcs();" [disabled] = "image_in" [hidden] = "!instance" 
             >
-           
+       
             <i class="fa fa-paper-plane" aria-hidden="true"></i>
             Envoyer
             </button>
-
+        -->
            
         </div>
        <!--   <app-document-viewer [imageCollection] =flex-auto "imgCollection1">class="w-full bg-blueGray-900 flex content-center img-scroll-bar items-center pt-2 pb-2 justify-center h-full"</app-document-viewer>-->
@@ -180,4 +180,13 @@
 
 </div>
 <div class="modal"><!-- Place at bottom of page --></div>
+<!--<div id="loader"></div> -->
+
+<!--
+    <span class="loader"></span>
+-->
+<!--
+<div class="loader-wrapper" id="load">
+    <span class="loader"></span>
+</div>-->
 <script language="JavaScript" type="text/javascript" src='./assets/js/bordereau.js'></script>

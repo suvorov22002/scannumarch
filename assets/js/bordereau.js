@@ -89,7 +89,7 @@ let filteredTypes = [
 
   function manageVisibleBtn() {
     if (globalResponse === undefined || globalResponse.length === 0) {
-        document.getElementById("btnAcs").style.visibility = "hidden"
+        //document.getElementById("btnAcs").style.visibility = "hidden"
         document.getElementById("btnFusion").style.visibility = "hidden"
         document.getElementById("btnSplit").style.visibility = "hidden"
     }
@@ -366,13 +366,14 @@ asyncMsgBtn.addEventListener('click', () => {
       }, 100
     )
 */
-    $('body').addClass('loading')
+   // $('body').addClass('loading')
+    $('body').toggleClass('loading')
 
     setTimeout(
       () => {
         ipc.send('loadScanFile','Bonjour Electron depuis AFB');
       }, 1000
-   )
+    )
    
     
 
@@ -380,7 +381,8 @@ asyncMsgBtn.addEventListener('click', () => {
        //console.log("Response: "+response)
        
        //clearInterval(setLoad);
-       $('body').removeClass('loading')
+      // $('body').removeClass('loading')
+       $('body').toggleClass('loading')
        $('#anomalie').hide();
        if (response === 'AFB-SERVICE-ERROR') return;
 
@@ -403,7 +405,7 @@ asyncMsgBtn.addEventListener('click', () => {
        let currentProcess = $('#process');
        for (let j = 0; j < globalResponse.length; j++) {
            var internData = globalResponse[j];
-           currentProcess.append("<button type='button' id='btn-" + j + "' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
+           currentProcess.append("<button type='button' id='btn-" + j + "' onkeydown='isKeyPressed(event)' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
            currentProcess.append("<button type='button' class='mr-2' id='btnOne-" + j + "' title='Supprimer ce dossier.' onclick='onSupp(this);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
            currentProcess.append("<button type='button' class='mr-2' id='btnTwo-" + j + "' title='Valider les Proprietés.' onclick ='onUpdate(this);'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
            
@@ -859,142 +861,156 @@ function verifierInt(_str){
 	return v;
 }
 
-function sendToFusion() {
+function sendToFusion(e) {
+  e.preventDefault()
+  e.stopPropagation()
+  $('body').toggleClass('loading')
 
-   var dirIndexes = 'C:\\numarch\\indexes';
-   var dirWorks = 'C:\\numarch\\works';
-   var dirScans = 'C:\\numarch\\inputs';
-   var dirAlfresco = 'C:\\numarch\\alfresco';
-   if (globalResponse === null) return;
-   var fusionSize = globalResponse.length;
-   var controlSize = 0;
-   $('body').addClass('loading')
-//   console.log('Fusion size: ',globalResponse.length)
-   
-  if (globalResponse && globalResponse.length > 0) {
-   
-    let buff;   
-    globalResponse.forEach(file => {
-       var intermData = file[file.length - 1].filenom;
-       var intermState = file[file.length - 1].state;
-       
-       const lastDot = intermData.lastIndexOf('.');
-       var fileNom =   intermData.substring(0, lastDot);
-       console.log(fileNom + ' -**- ' + intermState)
-       var intFolder;  
-       var intFolderWorks; 
-       var intFolderAlfreco;
-       var realFoder;
-       var jsonVariable = JSON.stringify(file[file.length-1].data);
-       controlSize++;
-       realFoder = fileNom.startsWith('work') ? fileNom.replace('work', 'tmp') : (fileNom.startsWith('index') ? fileNom.replace('index', 'tmp') : fileNom)
-       console.log('realFoder -**- ' + realFoder)
-       intFolder = path.join(dirIndexes, realFoder); 
-       intFolderWorks = path.join(dirWorks, realFoder); 
-       intFolderAlfreco = path.join(dirAlfresco, realFoder); 
-    //   console.log('intFolder -**- ' + intFolder)
-    //   console.log('intFolderWorks -**- ' + intFolderWorks)
-    //   console.log('intFolderAlfreco -**- ' + intFolderAlfreco)
-     //  console.log('jsonVariable: ',jsonVariable)
-       var controlTypeObject = (typeof file[file.length-1].data == 'object' && file[file.length-1].data !== null);
+  var dirIndexes = 'C:\\numarch\\indexes';
+  var dirWorks = 'C:\\numarch\\works';
+  var dirScans = 'C:\\numarch\\inputs';
+  var dirAlfresco = 'C:\\numarch\\alfresco';
 
-     //  console.log(typeof file[file.length-1].data + ' - ' + controlTypeObject)
-       
-       if (intermState) prepareAlfrescoFiles(file, intFolderAlfreco);
+  if (globalResponse === null) return;
 
-       file.forEach(f => {
+  setTimeout(
+    () => {
+      
+          var fusionSize = globalResponse.length;
+          var controlSize = 0;
+           console.log('Fusion size: ',globalResponse.length)
           
-          if((intermState || f.state) && (fileNom.startsWith('tmp') || fileNom.startsWith('work'))){
-            if (!fs.existsSync(intFolder)){
-              fs.mkdirSync(intFolder, { recursive: true });
-              if(controlTypeObject) {
-                writeToFile (path.join(intFolder, 'data.json'), jsonVariable);
-                //fs.writeFileSync(path.join(intFolder, 'data.json'), jsonVariable);
-              } 
-            }
-            buff = Buffer.from(f.enbase64, 'base64');
-            if (fileNom.startsWith('work')) {
-              // fs.writeFileSync(path.join(intFolder, f.filenom.replace('work', 'index')), buff);
-            //   console.log('write file work: '+f.filenom.replace('work', 'index'))
-               writeToFile (path.join(intFolder, f.filenom.replace('work', 'index')), buff)
-               deleteFolder(intFolderWorks)
-              // console.log('write file work: '+f.filenom.replace('tmp', 'index'))
-            }
-            else{
-              //fs.writeFileSync(path.join(intFolder, f.filenom.replace('tmp', 'index')), buff);
-            //  console.log('write file work: '+f.filenom.replace('tmp', 'index'))
-              writeToFile (path.join(intFolder, f.filenom.replace('tmp', 'index')), buff)
-              //console.log('write file tmp: '+f.filenom.replace('tmp', 'index'))
-            }
-          }
-          else if((!intermState || !f.state) && (fileNom.startsWith('tmp'))) {
-            if (!fs.existsSync(intFolderWorks)){
-              fs.mkdirSync(intFolderWorks, { recursive: true });
+          if (globalResponse && globalResponse.length > 0) {
+            var totalCorrect = 0
+            var totalAnomalie = 0
+            let buff;   
+            globalResponse.forEach(file => {
+              var intermData = file[file.length - 1].filenom;
+              var intermState = file[file.length - 1].state;
               
-              if(controlTypeObject) fs.writeFileSync(path.join(intFolderWorks, 'data.json'), jsonVariable);
-            }
-            buff = Buffer.from(f.enbase64, 'base64');
-            if (f.filenom.indexOf('index') !== -1){
-             // fs.writeFileSync(path.join(intFolderWorks, f.filenom.replace('index', 'work')), buff);
-          //   console.log('write file work: '+f.filenom.replace('index', 'work'))
-              writeToFile (path.join(intFolderWorks, f.filenom.replace('index', 'work')), buff)
-              //deleteFile(path.join(intFolder, f.filenom))
-              deleteFolder(intFolder)
-            }
-            else{
-              //fs.writeFileSync(path.join(intFolderWorks, f.filenom.replace('tmp', 'work')), buff);
-              writeToFile (path.join(intFolderWorks, f.filenom.replace('tmp', 'work')), buff)
-            }
+              const lastDot = intermData.lastIndexOf('.');
+              var fileNom =   intermData.substring(0, lastDot);
+            //  console.log(fileNom + ' -**- ' + intermState)
+              var intFolder;  
+              var intFolderWorks; 
+              var intFolderAlfreco;
+              var realFoder;
+              var jsonVariable = JSON.stringify(file[file.length-1].data);
+              controlSize++;
+              realFoder = fileNom.startsWith('work') ? fileNom.replace('work', 'tmp') : (fileNom.startsWith('index') ? fileNom.replace('index', 'tmp') : fileNom)
+            //  console.log('realFoder -**- ' + realFoder)
+              intFolder = path.join(dirIndexes, realFoder); 
+              intFolderWorks = path.join(dirWorks, realFoder); 
+              intFolderAlfreco = path.join(dirAlfresco, realFoder); 
+           
+              var controlTypeObject = (typeof file[file.length-1].data == 'object' && file[file.length-1].data !== null);
+   
+              if (intermState) {
+                prepareAlfrescoFiles(file, intFolderAlfreco);
+                totalCorrect = totalCorrect + 1
+              }
+              else{
+                totalAnomalie = totalAnomalie + 1
+              }
+
+              file.forEach(f => {
+                  
+                  if((intermState || f.state) && (fileNom.startsWith('tmp') || fileNom.startsWith('work'))){
+                    
+                    if (!fs.existsSync(intFolder)){
+                      fs.mkdirSync(intFolder, { recursive: true });
+                      if(controlTypeObject) {
+                        writeToFile (path.join(intFolder, 'data.json'), jsonVariable);
+                      } 
+                    }
+                    buff = Buffer.from(f.enbase64, 'base64');
+                    if (fileNom.startsWith('work')) {
+                      writeToFile (path.join(intFolder, f.filenom.replace('work', 'index')), buff)
+                      deleteFolder(intFolderWorks)
+                    }
+                    else{
+                      writeToFile (path.join(intFolder, f.filenom.replace('tmp', 'index')), buff)
+                    }
+                  }
+                  else if((!intermState || !f.state) && (fileNom.startsWith('tmp'))) {
+                    
+                    if (!fs.existsSync(intFolderWorks)){
+                      fs.mkdirSync(intFolderWorks, { recursive: true });
+                      
+                      if(controlTypeObject) fs.writeFileSync(path.join(intFolderWorks, 'data.json'), jsonVariable);
+                    }
+                    buff = Buffer.from(f.enbase64, 'base64');
+                    if (f.filenom.indexOf('index') !== -1){
+                      writeToFile (path.join(intFolderWorks, f.filenom.replace('index', 'work')), buff)
+                      deleteFolder(intFolder)
+                    }
+                    else{
+                      writeToFile (path.join(intFolderWorks, f.filenom.replace('tmp', 'work')), buff)
+                    }
+                  }
+              
+              })
+
+              if (controlSize == fusionSize) {
+                  const elets =  $("div.block");
+                  if(elets) elets.remove();
+
+                  if (globalResponse){
+                    for (let i = 0; i < globalResponse.length; i++) {
+                      $('#btn-'+i).remove();
+                      $('#btnOne-'+i).remove();
+                      $('#btnTwo-'+i).remove();
+                      map = new Map();
+                  }
+                  globalResponse = [];
+                  map = new Map();
+                  }
+                  charge = 0;
+                  $('#anomalie').hide(); // hide span badge
+              //    console.log('Fusion end size: ',globalResponse.length)
+                  $("#testlist").val("");
+                  $("#user").val("");
+                  $("#ncp").val("");
+                  $("#amount").val(0);
+                  $("#ref").val("");
+                  $("#age").val("");
+                  document.getElementById("date").value = "";
+                
+
+                  var fol;
+                  indexedDirs = fs.readdirSync(dirScans);
+                  for (obj in indexedDirs) {
+                    fol = path.join(dirScans, indexedDirs[obj])
+                    deleteFolder(fol)
+
+                   
+                  }
+
+                  $('body').toggleClass('loading')
+                  alert(totalCorrect + ' Dossiers envoyés.  ' + totalAnomalie + ' Dossiers non traités.')
+              }
+            });
+
+              var fields = ['testlist', 'user', 'ncp', 'amount', 'ref', 'age', 'date'];
+              for (obj in fields) {
+                var elem = 'sp_'+fields[obj]
+                document.getElementById(elem).classList.remove('error');
+              }
+
+              manageVisibleBtn();
           }
-       
-       })
-
-       if (controlSize == fusionSize) {
-          const elets =  $("div.block");
-          if(elets) elets.remove();
-
-          if (globalResponse){
-            for (let i = 0; i < globalResponse.length; i++) {
-              $('#btn-'+i).remove();
-              $('#btnOne-'+i).remove();
-              $('#btnTwo-'+i).remove();
-              map = new Map();
-           }
-           globalResponse = [];
-           map = new Map();
+          else{
+            $('body').toggleClass('loading')
           }
-          charge = 0;
-          $('#anomalie').hide(); // hide span badge
-      //    console.log('Fusion end size: ',globalResponse.length)
-          $("#testlist").val("");
-          $("#user").val("");
-          $("#ncp").val("");
-          $("#amount").val(0);
-          $("#ref").val("");
-          $("#age").val("");
-          document.getElementById("date").value = "";
-          $('body').removeClass('loading')
 
-          var fol;
-          indexedDirs = fs.readdirSync(dirScans);
-          for (obj in indexedDirs) {
-            fol = path.join(dirScans, indexedDirs[obj])
-            deleteFolder(fol)
-          }
-       }
-    });
+    }, 1000
+  )
 
-      var fields = ['testlist', 'user', 'ncp', 'amount', 'ref', 'age', 'date'];
-      for (obj in fields) {
-        var elem = 'sp_'+fields[obj]
-        document.getElementById(elem).classList.remove('error');
-      }
 
-      manageVisibleBtn();
-   }
-   else{
-      $('body').removeClass('loading')
-   }
+ // $('body').toggleClass('loading')
+//  document.getElementById("load").style.display = "inline-block"
+//  document.getElementById("load").style.visibility = "hidden"
+
 }
 
 function deleteFile(directoryPAth) {
@@ -1139,3 +1155,29 @@ function sendRToAcs() {
   });
 }
 
+/*
+$(function() {
+  setInterval("$('body').toggleClass('loading')", 4000);
+});
+*/
+
+function isKeyPressed(evt) {
+      // verification des caratères saisis autorisés
+  /*  let keyCode = evt.which ? evt.which : evt.keyCode;
+    let accept = '.+*-/nN0123456789';
+   
+    console.log("keyCode: "+keyCode);
+    console.log("evt.keyCode: "+evt.keyCode);*/
+
+    let keyCode = evt.which ? evt.which : evt.keyCode;
+    console.log("keyCode: "+keyCode);
+  if (event.ctrlKey) {
+    
+    console.log("keyCode: "+ "The CTRL key was pressed!");
+  } else {
+   
+    console.log("keyCode: "+ "The CTRL key was NOT pressed!");
+  }
+   
+
+}
