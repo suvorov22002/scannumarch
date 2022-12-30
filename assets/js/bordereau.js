@@ -244,7 +244,7 @@ function onSupp(btn) {
         var currProcess = $('#process');
         for (let j = 0; j < globalResponse.length; j++) {
             var internData = globalResponse[j];
-            currProcess.append("<button type='button' id='btn-" + j + "' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
+            currProcess.append("<button type='button' id='btn-" + j + "' onkeydown='isKeyPressed(event, this)' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
             currProcess.append("<button type='button' class='mr-2' id='btnOne-" + j + "' title='Supprimer ce dossier.' onclick='onSupp(this);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
             currProcess.append("<button type='button' class='mr-2' id='btnTwo-" + j + "' title='Valider les Proprietés.' onclick ='onUpdate(this);'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
         }
@@ -1330,7 +1330,7 @@ function onFusion() {
           }
       }
       globalResponse = globalResponse.filter(item => !globalResponseTmp.includes(item))
-    //  console.log('globalResponse: '+globalResponse.length)
+      //console.log('globalResponse: '+globalResponse.length)
       //console.log('joinIndex: '+joinIndex)
       const _joinIndex = globalResponse.findIndex(object => {
         return object === arrayLive;

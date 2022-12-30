@@ -5,7 +5,7 @@
   "description": "numerisation des pièces comptables by Afriland 2022.",
   "main": "main.js",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "electron .",
     "rebuild": "electron-rebuild",
     "package": "electron .",
     "make": "electron-forge make"

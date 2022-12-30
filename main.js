@@ -1186,7 +1186,7 @@ async function processFile2(event) {
                     }
                 
                 }
-                console.log("qrcountFolders = "+qrcountFolders+", qrnbreFolder = "+qrnbreFolder)
+             //   console.log("qrcountFolders = "+qrcountFolders+", qrnbreFolder = "+qrnbreFolder)
                 if(qrcountFolders === qrnbreFolder) {
                     console.log('message scanned: ',groupedScannedFiles.length);
                     var message = groupedScannedFiles.length;
