@@ -1,0 +1,19 @@
+electron-forge make --arch=ia32
+
+
+  //...
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  //...
+
+npm run make
+
+
+
+FIX ERROR ON SETUP
+
+%appdata% delete application folder
+%localappdata% delete applicatio folder

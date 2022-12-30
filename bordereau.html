@@ -149,14 +149,6 @@
             </button>
 
             <button
-                class="float-right relative bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
-                type="button"  id="btnSplit"
-                onclick="onSplit();" [disabled] = "image_in" [hidden] = "instance"
-            >
-                <i title="Decoupage" class="fa fa-cut" aria-hidden="true"></i>
-                Separer
-            </button>
-            <button
                 class="float-right relative bg-orange-500 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
                 type="button"  id="btnFusion"
                 onclick="sendToFusion(event);" [disabled] = "image_in" [hidden] = "instance"
@@ -164,6 +156,16 @@
                 <i class="fa fa-paper-plane" aria-hidden="true"></i>
                 Envoyer
             </button>
+            
+            <button
+                class="float-right relative bg-red-800 text-white active:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-2 ease-linear transition-all duration-150"
+                type="button"  id="btnSplit"
+                onclick="onSplit();" [disabled] = "image_in" [hidden] = "instance"
+            >
+                <i title="Decoupage" class="fa fa-cut" aria-hidden="true"></i>
+                Separer
+            </button>
+            
         </div>
        <!--   <app-document-viewer [imageCollection] =flex-auto "imgCollection1">class="w-full bg-blueGray-900 flex content-center img-scroll-bar items-center pt-2 pb-2 justify-center h-full"</app-document-viewer>-->
        

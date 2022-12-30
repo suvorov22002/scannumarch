@@ -165,7 +165,7 @@ function onLoadQRDoc(btn) {
     var id = btn.id
     var index = id.split('-')[1]
     var internData = globalResponse[index]; // Array of grouped files; last object contains qr code
-   
+    //console.log(internData[internData.length-1].state)
     const elements =  $("div.block");
     if(elements) elements.remove();
 
@@ -173,15 +173,12 @@ function onLoadQRDoc(btn) {
     fillProperties(internData);
 
     var crtlJoin = localStorage.getItem("CTRL_JOIN")
-    if (crtlJoin === undefined || crtlJoin === null) {
-       console.warn('Rien a fusionner')
+    if (crtlJoin !== undefined && crtlJoin !== null) {
+      //console.warn('Fusionner: '+crtlJoin)
+      crtlJoin = crtlJoin + ';' + id
+      localStorage.setItem("CTRL_JOIN", crtlJoin)
     }
-    else{
-       console.warn('Fusionner: '+crtlJoin)
-       crtlJoin = crtlJoin + ';' + id
-       localStorage.setItem("CTRL_JOIN", crtlJoin)
-    }
-
+    
     resetClassOnlive(index);
     //$('#btn-'+index).addClass('onlive');
     localStorage.setItem('CURRENT_FILE', internData[internData.length - 1].filenom);
@@ -500,7 +497,7 @@ function anomalies() {
         if (internDatas[internDatas.length-1].state){
           internDatas[internDatas.length-1].state = true
           trackError = validDataUnique(internDatas[internDatas.length-1].data);
-          //console.log('trackError ', trackError) 
+        //  console.log('TTtrackError ', trackError) 
           if(!trackError) {
             charge = charge + 1;
             document.getElementById("btn-"+jj).style.borderColor = "red";
@@ -513,19 +510,37 @@ function anomalies() {
           
         }
         else{
-          document.getElementById("btn-"+jj).style.borderColor = "red";
-          charge = charge + 1;
+
+            internDatas[internDatas.length-1].state = true
+            trackError = validDataUnique(internDatas[internDatas.length-1].data);
+          //  console.log('TTtrackError after ', trackError) 
+            if(!trackError) {
+              charge = charge + 1;
+              document.getElementById("btn-"+jj).style.borderColor = "red";
+              internDatas[internDatas.length-1].state = false
+              globalResponse[jj] = internDatas;
+            }
+            else {
+              document.getElementById("btn-"+jj).style.borderColor = "green";
+              if(charge > 0) charge = charge - 1;
+              
+            }
+
+          //document.getElementById("btn-"+jj).style.borderColor = "red";
+          //charge = charge + 1;
         }
       }
+
+      //console.log('charge: '+charge)
   }
   
-  if (charge < 1) {
-    $('#anomalie').hide();
-  }
-  else{
-    $('#anomalie').show();
-    $('#anomalie').text(charge > 50 ? '50+' : charge);
-  }
+    if (charge < 1) {
+      $('#anomalie').hide();
+    }
+    else{
+      $('#anomalie').show();
+      $('#anomalie').text(charge > 50 ? '50+' : charge);
+    }
 }
 
 function anomaliesAfterSplit() {
@@ -554,14 +569,9 @@ function anomaliesAfterSplit() {
                     }
                     else {
                       document.getElementById("btn-"+jj).style.borderColor = "green";
-                      charge = charge - 1;
+                      if(charge > 0) charge = charge - 1;
                     }
                     
-                //  }
-                //  else{
-                //    document.getElementById("btn-"+jj).style.borderColor = "red";
-                //    charge = charge + 1;
-                //  }
                 }
 
           }
@@ -578,16 +588,22 @@ function anomaliesAfterSplit() {
 function anomaliesAfterDelete() {
   charge = 0;
   var trackError;
+//  console.log('globalResponse.length '+globalResponse.length)
       for (let jj = 0; jj < globalResponse.length; jj++) {
         var internDatas = globalResponse[jj];
-            if(!internDatas[internDatas.length-1].state) {
+        var elemt = document.getElementById("btn-"+jj)
+        if (elemt !== null) {
+          if(!internDatas[internDatas.length-1].state) {
               
-              charge = charge + 1;
-              document.getElementById("btn-"+jj).style.borderColor = "red";
-            }
-            else {
-              document.getElementById("btn-"+jj).style.borderColor = "green";
-            }
+            charge = charge + 1;
+            elemt.style.borderColor = "red";
+          }
+          else {
+        //    console.log('jj '+"btn-"+jj)
+            elemt.style.borderColor = "green";
+          }
+        }
+            
       }
     if (charge < 1) {
       $('#anomalie').hide();
@@ -626,7 +642,8 @@ function onSplit() {
 
   // Ajout dans globalResponse
   arrayRemovedFiles[arrayRemovedFiles.length - 1].state = false
-  globalResponse.push(arrayRemovedFiles)
+  //globalResponse.push(arrayRemovedFiles)  -----------------------
+ 
 
   // Ajouter dans MAP
  // console.log('state: '+arrayRemovedFiles[arrayRemovedFiles.length - 1].state)
@@ -636,7 +653,15 @@ function onSplit() {
   const jndex = globalResponse.findIndex(object => {
     return object === arrayLive;
   }); 
-//  console.log(arrayLive.length)
+ //console.log('jndex '+jndex)
+ 
+globalResponse.splice(1+jndex, 0, arrayRemovedFiles);
+//console.log('state: '+arrayRemovedFiles[arrayRemovedFiles.length - 1].filenom)
+var insert = globalResponse[1+jndex]
+//console.log('state: '+insert[insert.length - 1].filenom)
+
+
+
   arrayLive = arrayLive.filter(item => !arrayRemovedFiles.includes(item))
 //  console.log(arrayLive.length)
   if (jndex !== -1) {
@@ -648,6 +673,7 @@ function onSplit() {
   var arrayLives = map.get(fileLive)
   localStorage.setItem('CURRENT_FILE', arrayLives[arrayLives.length - 1].filenom);
 
+  
   /* Mise à jour de toutes les vues */
 
   // - Bloc visuel et propriétés
@@ -658,16 +684,43 @@ function onSplit() {
       fillProperties(arrayLives);
 
   // - Bloc documents traités (see, approve, delete)
-        var currProcess = $('#process');
-        for (let j = globalResponse.length - 1; j < globalResponse.length; j++) {
+        var currentProcess = $('#process');
+ /*       for (let j = globalResponse.length - 1; j < globalResponse.length; j++) {
             var internData = globalResponse[j];
-            currProcess.append("<button type='button' id='btn-" + j + "' onkeydown='isKeyPressed(event, this)' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
-            currProcess.append("<button type='button' class='mr-2' id='btnOne-" + j + "' title='Supprimer ce dossier.' onclick='onSupp(this);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
-            currProcess.append("<button type='button' class='mr-2' id='btnTwo-" + j + "' title='Valider les Proprietés.' onclick ='onUpdate(this);'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
+            currentProcess.append("<button type='button' id='btn-" + j + "' onkeydown='isKeyPressed(event, this)' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
+            currentProcess.append("<button type='button' class='mr-2' id='btnOne-" + j + "' title='Supprimer ce dossier.' onclick='onSupp(this);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
+            currentProcess.append("<button type='button' class='mr-2' id='btnTwo-" + j + "' title='Valider les Proprietés.' onclick ='onUpdate(this);'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
         }
-      //  anomalies();
-        anomaliesAfterSplit();
+*/
+/*
+var elt = $("#btnTwo-"+jndex);
+var newIndex = 1+jndex
+$("<button type='button' id='btn-" + newIndex + "' onkeydown='isKeyPressed(event, this)' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+insert[insert.length - 1].filenom+"</button>").insertAfter(elt);
+$("<button type='button' class='mr-2' id='btnOne-" + newIndex + "' title='Supprimer ce dossier.' onclick='onSupp(this);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>").insertAfter($("#btn-"+newIndex))
+$("<button type='button' class='mr-2' id='btnTwo-" + newIndex + "' title='Valider les Proprietés.' onclick ='onUpdate(this);'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>").insertAfter($("#btnOne-"+newIndex))
+     */
+    /*
+for (let i = 0; i < globalResponse.length; i++) {
+  $('#btn-'+i).remove();
+  $('#btnOne-'+i).remove();
+  $('#btnTwo-'+i).remove();
+  map = new Map();
+}*/
 
+        currentProcess.empty();
+        for (let j = 0; j < globalResponse.length; j++) {
+            var internData = globalResponse[j];
+            currentProcess.append("<button type='button' id='btn-" + j + "' onkeydown='isKeyPressed(event, this)' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
+            currentProcess.append("<button type='button' class='mr-2' id='btnOne-" + j + "' title='Supprimer ce dossier.' onclick='onSupp(this);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
+            currentProcess.append("<button type='button' class='mr-2' id='btnTwo-" + j + "' title='Valider les Proprietés.' onclick ='onUpdate(this);'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
+            
+            map.set(internData[internData.length-1].filenom, internData); // store all processing files in map for future utilisation
+        }  
+              
+        anomalies();
+      //  anomaliesAfterSplit();
+      console.log('jndex '+jndex)
+      resetJoinClassOnlive('btn-'+jndex)
  
 }
 
@@ -692,7 +745,7 @@ function updateProperties() {
 
 
     if(validData()){
-      console.log('je valide les proprietes')
+      //console.log('je valide les proprietes')
       var fileLive = localStorage.getItem('CURRENT_FILE');
       var arrayCurrFile = map.get(fileLive);
   
@@ -705,7 +758,7 @@ function updateProperties() {
       //console.log(arrayCurrFile[arrayCurrFile.length - 1].data);
       // Mettre current file (arrayLive) à jour dans MAP
       if (xxx !== -1) {
-        console.log('update properties: '+JSON.stringify(arrayCurrFile[arrayCurrFile.length - 1].data))
+        //console.log('update properties: '+JSON.stringify(arrayCurrFile[arrayCurrFile.length - 1].data))
         arrayCurrFile[arrayCurrFile.length - 1].state = true
         globalResponse[xxx] = arrayCurrFile;
         anomaliesAfterDelete();
@@ -878,6 +931,8 @@ function sendToFusion(e) {
   e.stopPropagation()
   $('body').toggleClass('loading')
 
+  localStorage.removeItem("CTRL_JOIN")
+
   var dirIndexes = 'C:\\numarch\\indexes';
   var dirWorks = 'C:\\numarch\\works';
   var dirScans = 'C:\\numarch\\inputs';
@@ -973,9 +1028,9 @@ function sendToFusion(e) {
                       $('#btnOne-'+i).remove();
                       $('#btnTwo-'+i).remove();
                       map = new Map();
-                  }
-                  globalResponse = [];
-                  map = new Map();
+                    }
+                    globalResponse = [];
+                    map = new Map();
                   }
                   charge = 0;
                   $('#anomalie').hide(); // hide span badge
@@ -1060,7 +1115,19 @@ function resetClassOnlive(index) {
     for(btn in globalResponse) {
       $('#btn-'+btn).removeClass('onlive');
     }
-    $('#btn-'+index).addClass('onlive');
+    var crtlJoin = localStorage.getItem("CTRL_JOIN")
+    if (crtlJoin !== undefined && crtlJoin !== null) {
+       var allJoinBtn = crtlJoin.split(';')
+      //console.log(allJoinBtn)
+       for(var j in allJoinBtn) {
+      //  console.log('bouton: '+allJoinBtn[j])
+         $('#'+allJoinBtn[j]).addClass('onlive');
+       }
+    }
+    else{
+      $('#btn-'+index).addClass('onlive');
+    }
+   
   }
 }
 
@@ -1185,12 +1252,19 @@ function isKeyPressed(evt, btn) {
     console.log("keyCode: "+keyCode);
     console.log("keyCode: "+btn.id);
   
-  if (event.ctrlKey) {
-    localStorage.setItem("CTRL_JOIN", btn.id)
-    console.log("keyCode: "+ "The CTRL key was pressed!");
-  } else {
-    console.log("keyCode: "+ "The CTRL key was NOT pressed!");
+  if (event.ctrlKey && (listBtn !== undefined && listBtn !== null)) {
+     if (listBtn !== undefined && listBtn !== null) {
+        var allJoinBtn = listBtn.split(';')
+        index = allJoinBtn[allJoinBtn.length - 1]
+        resetJoinClassOnlive(index)
+     }
   }
+  else if (event.ctrlKey) {
+    localStorage.setItem("CTRL_JOIN", btn.id)
+    //console.log("keyCode: "+ "The CTRL key was pressed!");
+  } /*else {
+    console.log("keyCode: "+ "The CTRL key was NOT pressed!");
+  }*/
    
 
 }
@@ -1201,9 +1275,104 @@ function onFusion() {
 
   if (listBtn !== undefined && listBtn !== null) {
     var allJoinBtn = listBtn.split(';')
-    const unique = Array.from(new Set(allJoinBtn.map((item) => item)));
-    console.log(unique)
+    const uniqFileSelect = Array.from(new Set(allJoinBtn.map((item) => item)));
+    //console.log(uniqFileSelect)
+
+    fileLive = localStorage.getItem('CURRENT_FILE');
+    
+    if (fileLive) {
+      arrayLive = map.get(fileLive)
+    }
+
+    const joinIndex = globalResponse.findIndex(object => {
+      return object === arrayLive;
+    }); 
+
+    //console.log('ADD TO ARRAY LIVE: '+arrayLive.length)
+    var folderToJoin
+    var folderToJoinNom
+
+    if (joinIndex !== -1) {
+      for(var s in uniqFileSelect) {
+        var index = uniqFileSelect[s].replace('btn-','')
+        //console.log('index: '+index)
+        folderToJoin = globalResponse[index]
+        //console.log('length: '+folderToJoin.length)
+        
+        folderToJoinNom = folderToJoin[folderToJoin.length - 1].filenom
+      
+        if (folderToJoinNom.localeCompare(fileLive) !== 0) {
+         // console.log('foldrToJion: '+folderToJoinNom)
+            //arrayLive = $.merge(folderToJoin,arrayLive)
+            arrayLive = folderToJoin.concat(arrayLive)
+        }
+      }
+     // console.log('joinIndex: '+joinIndex)
+      //console.log('ADD TO ARRAY LIVE: '+arrayLive.length)
+      globalResponse[joinIndex] = arrayLive;
+      map.set(fileLive, arrayLive);
+
+    //  console.log('globalResponse: '+globalResponse.length)
+      var globalResponseTmp = []
+      for(var s in uniqFileSelect) {
+          var index = uniqFileSelect[s].replace('btn-','')
+          folderToJoin = globalResponse[index]
+          folderToJoinNom = folderToJoin[folderToJoin.length - 1].filenom
+      //    console.log('foldrToJion: '+folderToJoinNom)
+          if (folderToJoinNom.localeCompare(fileLive) !== 0) {
+      //      console.log('foldrToJion: '+folderToJoinNom)
+           
+            globalResponseTmp.push(folderToJoin)
+             //globalResponseTmp = globalResponse.filter(item => item !== folderToJoin)
+           // globalResponse = $.grep(globalResponse, function(value) {
+            //  return value != folderToJoin;
+           // });
+          }
+      }
+      globalResponse = globalResponse.filter(item => !globalResponseTmp.includes(item))
+    //  console.log('globalResponse: '+globalResponse.length)
+      //console.log('joinIndex: '+joinIndex)
+      const _joinIndex = globalResponse.findIndex(object => {
+        return object === arrayLive;
+      });
+     // console.log('joinIndex: '+_joinIndex)
+
+      // - Bloc visuel et propriétés
+      // Remove element of visual
+      const elets =  $("div.block");
+      if(elets) elets.remove();
+      fillProperties(arrayLive);
+
+      var currentProcess = $('#process');
+        currentProcess.empty();
+        for (let j = 0; j < globalResponse.length; j++) {
+            var internData = globalResponse[j];
+            currentProcess.append("<button type='button' id='btn-" + j + "' onkeydown='isKeyPressed(event, this)' onclick='onLoadQRDoc(this);' class='bg-blueGray-200  border-blueGray-500 text-black text-xs btn_num rounded mr-2  m-1'>"+internData[internData.length-1].filenom+"</button>")
+            currentProcess.append("<button type='button' class='mr-2' id='btnOne-" + j + "' title='Supprimer ce dossier.' onclick='onSupp(this);' ><i class='fa fa-times-circle' style='font-size:24px;color:red'></i></button>")
+            currentProcess.append("<button type='button' class='mr-2' id='btnTwo-" + j + "' title='Valider les Proprietés.' onclick ='onUpdate(this);'><i class='fa fa-check-circle' style='font-size:24px;color:green'></i></button>")
+            
+            map.set(internData[internData.length-1].filenom, internData); // store all processing files in map for future utilisation
+        }  
+              
+      anomalies();
+      resetJoinClassOnlive('btn-'+_joinIndex)
+      //resetClassOnlive(_joinIndex)
+
+
+    }
+  
+   
   }
 
   localStorage.removeItem("CTRL_JOIN")
+}
+
+function resetJoinClassOnlive(index) {
+  if (globalResponse){
+    for(btn in globalResponse) {
+      $('#btn-'+btn).removeClass('onlive');
+    }
+    $('#'+index).addClass('onlive');
+    localStorage.removeItem("CTRL_JOIN")
+  }
 }
