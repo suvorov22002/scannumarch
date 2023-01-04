@@ -175,8 +175,24 @@ function onLoadQRDoc(btn) {
     var crtlJoin = localStorage.getItem("CTRL_JOIN")
     if (crtlJoin !== undefined && crtlJoin !== null) {
       //console.warn('Fusionner: '+crtlJoin)
-      crtlJoin = crtlJoin + ';' + id
-      localStorage.setItem("CTRL_JOIN", crtlJoin)
+      var crtlJoinList = crtlJoin.split(';')
+    //  console.log('oldJoin: ' + localStorage.getItem("CTRL_JOIN"))
+      if( $.inArray(id, crtlJoinList) !== -1 ) {
+       // console.log('Already select: '+id)
+        //$('#btn-'+index).toggleClass('onlive');
+        crtlJoinList = crtlJoinList.filter(item => item != id)
+        var newJoin = ''
+        for (var jj in crtlJoinList) {
+          newJoin = newJoin + ';' + crtlJoinList[jj]
+        }
+        localStorage.setItem("CTRL_JOIN", newJoin.substring(1))
+       // console.log('NewJoin: ' + localStorage.getItem("CTRL_JOIN"))
+      }
+      else{ 
+        crtlJoin = crtlJoin + ';' + id
+        localStorage.setItem("CTRL_JOIN", crtlJoin)
+      }
+      
     }
     
     resetClassOnlive(index);
@@ -1023,11 +1039,24 @@ function sendToFusion(e) {
                   if(elets) elets.remove();
 
                   if (globalResponse){
+                    var _indexedDirs
                     for (let i = 0; i < globalResponse.length; i++) {
                       $('#btn-'+i).remove();
                       $('#btnOne-'+i).remove();
                       $('#btnTwo-'+i).remove();
                       map = new Map();
+
+                      var elet = globalResponse[i]
+                      var delFolder = elet[elet.length-1].foldernom
+                      var fol;
+                    
+                      if (delFolder !== undefined) {
+                        fol = path.join(dirScans, delFolder)
+                        if (fs.existsSync(fol))  deleteFolder(fol)
+                      }
+                     
+                       
+                     
                     }
                     globalResponse = [];
                     map = new Map();
@@ -1044,17 +1073,16 @@ function sendToFusion(e) {
                   document.getElementById("date").value = "";
                 
 
-                  var fol;
-                  indexedDirs = fs.readdirSync(dirScans);
-                  for (obj in indexedDirs) {
-                    fol = path.join(dirScans, indexedDirs[obj])
-                    deleteFolder(fol)
-
-                   
-                  }
+                //  var fol;
+                //  indexedDirs = fs.readdirSync(dirScans);
+                //  for (obj in indexedDirs) {
+                //    fol = path.join(dirScans, indexedDirs[obj])
+                //    deleteFolder(fol)
+                //  }
 
                   $('body').toggleClass('loading')
-                  alert(totalCorrect + ' Dossiers envoyés.  ' + totalAnomalie + ' Dossiers non traités.')
+                  var remainder = fs.readdirSync(dirScans);
+                  alert(totalCorrect + ' Dossiers envoyés.  ' + totalAnomalie + ' Dossiers non traités.\n Reste à traiter: ' + remainder.length + ' lot')
               }
             });
 
@@ -1095,7 +1123,7 @@ function deleteFolder(dir) {
   if (fs.existsSync(dir)) { 
     try {
       fs.rmdirSync(dir, { recursive: true });
-      console.log(`${dir} is deleted!`);
+      //console.log(`${dir} is deleted!`);
     } catch (err) {
         console.error(`Error while deleting ${dir}.`);
     }

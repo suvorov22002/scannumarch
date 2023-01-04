@@ -28,6 +28,9 @@ let mainWindow;
 
 const ProgressBar = require('electron-progressbar');
 
+let startProcess
+let endProcess
+
 function createWindow () {
     var link = 'C:\\numarch'
     log.info("Creating window for", link)
@@ -145,6 +148,9 @@ ipcMain.on("loadScanFile", async (event, args) => {
     var countFiles;
     var loadData;
     var content;
+
+    var timestamp = new Date();  
+    startProcess = moment(timestamp).valueOf() 
     
 /*
     indexedDir = fs.readdirSync(indexedPath);
@@ -685,7 +691,9 @@ const readQRCode2 = async (filename) => {
         }
     }
     */
-    await request2(event);
+   
+    await request2Bis(event);
+    //await request2(event);
     //indexedDir.forEach(d => deleteFile(path.join(inputDir, d)));
     
  }
@@ -798,6 +806,7 @@ async function request2(event) {
             var archDir = path.join('C:\\numarch\\', 'archDocx') 
             var indexedDir = fs.readdirSync(inputDir);
             timestamp = new Date();
+            console.log(`timestamp: ${timestamp}`);
             var instantTime = moment(timestamp).format(simpleFormat); 
 
             indexedDir.forEach(d => {
@@ -810,6 +819,62 @@ async function request2(event) {
            
 
             requestServiceCode(event);
+        });
+
+        response.on('data', (chunk) => {
+            console.log(`BODY: ${chunk}`);
+        });
+
+
+    });
+
+    request.on('finish', () => {
+        console.log('Request is Finished')
+    });
+    request.on('abort', () => {
+        console.log('Request is Aborted')
+    });
+    request.on('error', (error) => {
+        //console.log(`ERROR: ${JSON.stringify(error)}`)
+        dialog.showErrorBox('AFB-SCANNUMARCH', 'SERVICE INDISPONIBLE.');
+        event.sender.send('actionReply', "AFB-SERVICE-ERROR");
+    });
+    request.on('close', (error) => {
+        console.log('Last Transaction has occurred')
+    });
+
+    request.end();
+}
+
+async function request2Bis(event) {
+    const fs = require('fs-extra');
+    
+    var endpoint = "http://127.0.0.1:8989/rest/api/v1/files/images/process-img";
+    console.log(`ENDPOINT: ${endpoint}`);
+    const request = net.request(endpoint);
+
+    request.on('response', (response) => {
+        console.log(`STATUS: ${response.statusCode}`);
+
+        response.on('end', () => {
+            console.log('No more data in response.');
+            var inputDir = path.join('C:\\numarch\\', 'in') 
+            var archDir = path.join('C:\\numarch\\', 'archDocx') 
+            var indexedDir = fs.readdirSync(inputDir);
+            timestamp = new Date();
+            
+            var instantTime = moment(timestamp).format(simpleFormat); 
+           // console.log("timestamp: " + moment(timestamp).valueOf());
+            indexedDir.forEach(d => {
+              //  deleteFile(path.join(inputDir, d))
+                fs.move(path.join(inputDir, d), path.join(archDir, 'arch_'+instantTime+'_'+d), (err) => {
+                    if (err) return console.log(err);
+                    console.log(`File successfully moved!!`);
+                });
+            });
+           
+            processFile2(event)
+           // requestServiceCode(event);
         });
 
         response.on('data', (chunk) => {
@@ -1046,6 +1111,10 @@ async function processFile2(event) {
     var loadData;
     var content;
 
+    var timestamp = new Date();  
+    endProcess = moment(timestamp).valueOf()   
+  
+/** Parcours des dossiers en attente de correction */
     scanFiles = [];
     indexedDir = fs.readdirSync(worksPath);
 
@@ -1091,6 +1160,9 @@ async function processFile2(event) {
         }
     }
     //console.log('scanned: ',groupedScannedFiles.length);
+/** Fin du parcour des dossiers en attente de correction */
+
+/** Debut du parcour des dossiers en instance */
 
     scanFiles = [];
     var indexedDirs = fs.readdirSync(directoryPath);
@@ -1101,6 +1173,7 @@ async function processFile2(event) {
     var qrcountFolders = indexedDirs.length;
     var qrnbreFolder = 0;
     
+    
     if (qrcountFolders === 0) {
         var message = groupedScannedFiles.length;
         var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
@@ -1109,6 +1182,13 @@ async function processFile2(event) {
     //    event.sender.send('actionReply', groupedScannedFiles.reverse());
         event.sender.send('actionReply', groupedScannedFiles);
 
+        const totalTimeInSec = Math.floor((endProcess - startProcess)/1000);
+        const totalMin = Math.floor(totalTimeInSec/60);
+        const totalSec = totalTimeInSec % 60;
+        var messageTraitement = totalMin + 'min ' + totalSec + 'sec'
+        console.log("Temps de traitement: " + messageTraitement)  
+        log.info("Temps de traitement: ", messageTraitement)
+        message = message + ' \nEn ' + messageTraitement
         dialog.showMessageBoxSync(mainWindow, {
             type: 'info',
             title: 'AFB-SCANNUMARCH',
@@ -1129,66 +1209,75 @@ async function processFile2(event) {
                 var qrnbre = 0;
 
                 indexedDir = await orderCollectFile2(indexedDir)
-
-               
-                for (var ind in indexedDir) {
-                    
-                    inFileName = indexedDir[ind];
-                //    console.log("qrcode - inFileName = "+inFileName);
-                    indexedFiles = fs.readdirSync(path.join(directoryPath,indexedDirs[d], inFileName));
-                    qrcountFiles = indexedFiles.length - 1
-                    qrnbre = 0;
-                    scanFiles = [];
-                    loadData = ""
-
-                    try{
-                        content = fs.readFileSync(path.join(directoryPath,indexedDirs[d], inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
-                        //console.log(content);
-                        loadData = JSON.parse(content); //now it an object
-                      //  console.log(loadData);
-                    } catch (err) {
-    
-                         console.error();
-                    }
-                   
-                    indexedFiles = await orderCollectFile2(indexedFiles)
-
-                    for (var inf in indexedFiles) {
-
-                        qrFileName = indexedFiles[inf]
-                      //  console.log("qrcode = "+qrFileName);
-                       
-                            if (qrFileName === 'data.json') continue;
-                            timestamp = new Date();
-                            var instantTime = moment(timestamp).format(simpleFormat); 
-
-                            obj = {}
-                            obj.filenom = ""
-                            obj.foldernom = indexedDirs[d]
-                            obj.enbase64 = ""
-                            obj.state = false
-                            obj.data = "" //TODO: extract data from xml file
-                            obj.filenom = 'tmp_' + instantTime + '_' + qrFileName;
-                           
-                            obj.enbase64 = await base64_encode(path.join(directoryPath,indexedDirs[d], inFileName, qrFileName));
-                            
-                            qrnbre++;
-                            if (qrcountFiles == qrnbre) {
-                                obj.data = loadData;
-                                obj.state = true
-                                scanFiles.push(obj);
-                                groupedScannedFiles.push(scanFiles)
-                            }
-                            else{
-                                scanFiles.push(obj);
-                            }
-                    
-                    }
                 
+                log.info("groupedScannedFiles: " + groupedScannedFiles.length + " qrcountFolder: " + qrcountFolder)
+                var fully = groupedScannedFiles.length + qrcountFolder
+                if (fully < 1001) {
+               
+                        for (var ind in indexedDir) {
+                            
+                            inFileName = indexedDir[ind];
+                        //    console.log("qrcode - inFileName = "+inFileName);
+                            indexedFiles = fs.readdirSync(path.join(directoryPath,indexedDirs[d], inFileName));
+                            qrcountFiles = indexedFiles.length - 1
+                            qrnbre = 0;
+                            scanFiles = [];
+                            loadData = ""
+
+                            try{
+                                content = fs.readFileSync(path.join(directoryPath,indexedDirs[d], inFileName, 'data.json'), {encoding:'utf8', flag:'r'});
+                                //console.log(content);
+                                loadData = JSON.parse(content); //now it an object
+                            //  console.log(loadData);
+                            } catch (err) {
+            
+                                console.error();
+                            }
+                        
+                            indexedFiles = await orderCollectFile2(indexedFiles)
+
+                            for (var inf in indexedFiles) {
+
+                                qrFileName = indexedFiles[inf]
+                            //  console.log("qrcode = "+qrFileName);
+                            
+                                    if (qrFileName === 'data.json') continue;
+                                    timestamp = new Date();
+                                    var instantTime = moment(timestamp).format(simpleFormat); 
+
+                                    obj = {}
+                                    obj.filenom = ""
+                                    obj.foldernom = indexedDirs[d]
+                                    obj.enbase64 = ""
+                                    obj.state = false
+                                    obj.data = "" //TODO: extract data from xml file
+                                    obj.filenom = 'tmp_' + instantTime + '_' + qrFileName;
+                                
+                                    obj.enbase64 = await base64_encode(path.join(directoryPath,indexedDirs[d], inFileName, qrFileName));
+                                    
+                                    qrnbre++;
+                                    if (qrcountFiles == qrnbre) {
+                                        obj.data = loadData;
+                                        obj.state = true
+                                        scanFiles.push(obj);
+                                        groupedScannedFiles.push(scanFiles)
+                                    }
+                                    else{
+                                        scanFiles.push(obj);
+                                    }
+                            
+                            }
+                        
+                        }
                 }
              //   console.log("qrcountFolders = "+qrcountFolders+", qrnbreFolder = "+qrnbreFolder)
                 if(qrcountFolders === qrnbreFolder) {
                     console.log('message scanned: ',groupedScannedFiles.length);
+                    
+                  //  if (originalSize > 50) {
+                  //      groupedScannedFiles = groupedScannedFiles.slice(0, 50);
+                  //  }
+                    
                     var message = groupedScannedFiles.length;
                     var piece = (groupedScannedFiles.length < 2) ? 'Pièce trouvé' : 'Pièces trouvées';
                     message = message.toString();
@@ -1196,6 +1285,17 @@ async function processFile2(event) {
     
                    // event.sender.send('actionReply', groupedScannedFiles.reverse());
                     event.sender.send('actionReply', groupedScannedFiles);
+
+                   
+                    const totalTimeInSec = Math.floor((endProcess - startProcess)/1000);
+                    const totalMin = Math.floor(totalTimeInSec/60);
+                    const totalSec = totalTimeInSec % 60;
+                    var messageTraitement = totalMin + 'min ' + totalSec + 'sec'
+                  
+                    log.info("Temps de traitement: ", messageTraitement)
+                    message = message + ' \nEn ' + messageTraitement
+                //    var remain = originalSize - groupedScannedFiles.length
+                //    message = message + ' \nReste: ' + remain + ' en attente.'
     
                     dialog.showMessageBoxSync(mainWindow, {
                         type: 'info',
@@ -1209,9 +1309,8 @@ async function processFile2(event) {
         }
     }
 
-
+   /** Fin du parcour des dossiers en instances */
    
-
 }
 
 async function orderCollectFile(collection) {
