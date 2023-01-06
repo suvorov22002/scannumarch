@@ -562,36 +562,50 @@ function anomalies() {
 function anomaliesAfterSplit() {
   charge = 0;
   var trackError;
-      for (let jj = 0; jj < globalResponse.length; jj++) {
-        var internDatas = globalResponse[jj];
-            if(!internDatas[internDatas.length-1].state) {
-              
-                if (internDatas.length > 3){
-                  internDatas[internDatas.length-1].state = false
-                  charge = charge + 1;
-                  document.getElementById("btn-"+jj).style.borderColor = "red";
-                }
-                else{
-                //  if (internDatas[internDatas.length-1].state){
-                    internDatas[internDatas.length-1].state = true
-                  //  console.log(internDatas[internDatas.length-1].data) 
-                    trackError = validDataUnique(internDatas[internDatas.length-1].data);
-                    console.log('trackError after ', trackError) 
-                    if(!trackError) {
-                      charge = charge + 1;
-                      document.getElementById("btn-"+jj).style.borderColor = "red";
-                      internDatas[internDatas.length-1].state = false
-                      globalResponse[jj] = internDatas;
-                    }
-                    else {
-                      document.getElementById("btn-"+jj).style.borderColor = "green";
-                      if(charge > 0) charge = charge - 1;
-                    }
-                    
-                }
-
-          }
+  for (let jj = 0; jj < globalResponse.length; jj++) {
+    var internDatas = globalResponse[jj];
+   
+      if (internDatas[internDatas.length-1].state){
+        internDatas[internDatas.length-1].state = true
+        trackError = validDataUnique(internDatas[internDatas.length-1].data);
+      //  console.log('TTtrackError ', trackError) 
+        if(!trackError) {
+          charge = charge + 1;
+          document.getElementById("btn-"+jj).style.borderColor = "red";
+          internDatas[internDatas.length-1].state = false
+          globalResponse[jj] = internDatas;
+        }
+        else {
+          document.getElementById("btn-"+jj).style.borderColor = "green";
+        }
+        
       }
+      else{
+     if (internDatas.length > 3){
+      internDatas[internDatas.length-1].state = false
+      charge = charge + 1;
+      document.getElementById("btn-"+jj).style.borderColor = "red";
+       }
+     else {
+       
+       internDatas[internDatas.length-1].state = true
+       trackError = validDataUnique(internDatas[internDatas.length-1].data);
+        //  console.log('TTtrackError after ', trackError) 
+       if(!trackError) {
+          charge = charge + 1;
+          document.getElementById("btn-"+jj).style.borderColor = "red";
+          internDatas[internDatas.length-1].state = false
+          globalResponse[jj] = internDatas;
+       }
+       else {
+        document.getElementById("btn-"+jj).style.borderColor = "green";
+        if(charge > 0) charge = charge - 1;
+        
+       }
+     }
+      }
+    }
+
     if (charge < 1) {
       $('#anomalie').hide();
     }
@@ -733,8 +747,8 @@ for (let i = 0; i < globalResponse.length; i++) {
             map.set(internData[internData.length-1].filenom, internData); // store all processing files in map for future utilisation
         }  
               
-        anomalies();
-      //  anomaliesAfterSplit();
+      //  anomalies();
+      anomaliesAfterSplit();
       console.log('jndex '+jndex)
       resetJoinClassOnlive('btn-'+jndex)
  
@@ -1307,12 +1321,12 @@ function onFusion() {
     //console.log(uniqFileSelect)
 
     fileLive = localStorage.getItem('CURRENT_FILE');
-    
+  //  console.log('fileLive: '+fileLive)
     if (fileLive) {
       arrayLive = map.get(fileLive)
     }
 
-    const joinIndex = globalResponse.findIndex(object => {
+    let joinIndex = globalResponse.findIndex(object => {
       return object === arrayLive;
     }); 
 
@@ -1320,12 +1334,28 @@ function onFusion() {
     var folderToJoin
     var folderToJoinNom
 
+    // Verifie si le dernier fichier selectionné a les pptés correctes
+    var lastPpties = validDataUnique(arrayLive[arrayLive.length - 1].data);
+  //  console.log('Live ppties: ' + lastPpties)
+
     if (joinIndex !== -1) {
       for(var s in uniqFileSelect) {
         var index = uniqFileSelect[s].replace('btn-','')
         //console.log('index: '+index)
         folderToJoin = globalResponse[index]
-        //console.log('length: '+folderToJoin.length)
+        var trackError = validDataUnique(folderToJoin[folderToJoin.length - 1].data);
+      //  console.log('index: '+index + ' join state: '+trackError)
+        if (!lastPpties && trackError) {
+            lastPpties = true
+            arrayLive = folderToJoin
+            fileLive = folderToJoin[folderToJoin.length - 1].filenom
+        //    console.log('fileLive after: '+fileLive)
+            localStorage.setItem('CURRENT_FILE', fileLive);
+            
+            joinIndex = globalResponse.findIndex(object => {
+              return object === arrayLive;
+            });
+        }
         
         folderToJoinNom = folderToJoin[folderToJoin.length - 1].filenom
       
